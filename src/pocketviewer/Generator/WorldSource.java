@@ -21,22 +21,31 @@ public class WorldSource {
 	}
 	
 	public WorldSource(World world){
+        this.world = world;
 		noise = new SimplexNoise(world.seed);
-		this.world = world;
 	}
 	
 	public Chunk getChunk(int x, int z){
-		Chunk chunk = new Chunk(world);
-		
-		int height = 0;
+		Chunk chunk = new Chunk(world, x, z);
+		int posx = x << 4;
+        int posz = z << 4;
+        
+		int height;
+        int X;
+        int Z;
 		for(int ax = 0; ax < 16; ax++){
 			for(int az = 0; az < 16; az++){
-				height = (int)(noise.noise(ax/70f, az/70f, 0)*chunk.height/2);
+                X = ax + posx;
+                Z = az + posz;
+				height = (int)(noise.noise(X/70f, Z/70f, 0)*chunk.height/2); //Heightmap
 				for(int ay = 0; ay < height; ay++){
-					chunk.setBlockID(ax, ay, az, 1);
+                    if(noise.octaveNoise(2,X/70f, ay/70f, Z/70f)>1.8){ //Create a "cave" effect via 3D noise
+                        chunk.setBlockID(ax, ay, az, 1);
+                    }
 				}
 			}
 		}
+        
 		return chunk;
 	}
 }

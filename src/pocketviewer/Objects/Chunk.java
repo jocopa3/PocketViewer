@@ -24,60 +24,66 @@ public class Chunk {
 	
 	public NibbleArray dirtyColumns; //Not implemented yet
 	
-	public Chunk(World world){
+	public Chunk(World world, int x, int z){
 		this.world = world;
 		height = world.height;
+        this.xPos = x;
+        this.zPos = z;
+        
 		heightMap = new byte[width*height];
 		dirtyColumns = new NibbleArray(width*length);
 		DataArrays = new StorageArray[height >> 4];
+        for(int i = 0; i < DataArrays.length; i++){
+            DataArrays[i] = new StorageArray();
+        }
 	}
 	
 	public void setBlockID(int x, int y, int z, int id){
 		int sect = y >> 4;
-        if (sect >= DataArrays.length){
+        if (sect >= DataArrays.length || sect < 0){
             return;
         }else if(DataArrays[sect] != null){
-            DataArrays[sect].setBlock(x, y & 15, z, id);
+            DataArrays[sect].setBlock(x&15, y & 15, z&15, id);
 			needsUpdate = true;
         }
     }
 	
 	public void setBlockData(int x, int y, int z, int data){
 		int sect = y >> 4;
-        if (sect >= DataArrays.length){
+        if (sect >= DataArrays.length || sect < 0){
             return;
         }else if(DataArrays[sect] != null){
-            DataArrays[sect].setBlockData(x, y & 15, z, data);
+            DataArrays[sect].setBlockData(x&15, y & 15, z&15, data);
 			needsUpdate = true;
         }
     }
 	
 	public void setBlockAndData(int x, int y, int z, int id, int data){
 		int sect = y >> 4;
-        if (sect >= DataArrays.length){
+        if (sect >= DataArrays.length || sect < 0){
             return;
         }else if(DataArrays[sect] != null){
-            DataArrays[sect].setBlockAndData(x, y & 15, z, id, data);
+            DataArrays[sect].setBlockAndData(x&15, y & 15, z&15, id, data);
 			needsUpdate = true;
         }
     }
 	
 	public void setLight(int x, int y, int z, int lightVal){
 		int sect = y >> 4;
-        if (sect >= DataArrays.length){
+        if (sect >= DataArrays.length || sect < 0){
             return;
         }else if(DataArrays[sect] != null){
-            DataArrays[sect].setLight(x, y & 15, z, lightVal);
+            DataArrays[sect].setLight(x&15, y & 15, z&15, lightVal);
 			needsUpdate = true;
         }
     }
 	
 	public void setSkylight(int x, int y, int z, int skylightVal){
 		int sect = y >> 4;
-        if (sect >= DataArrays.length){
+        if (sect >= DataArrays.length || sect < 0){
             return;
         }else if(DataArrays[sect] != null){
-            DataArrays[sect].setSkylight(x, y & 15, z, skylightVal);
+            DataArrays[sect].setSkylight(x&15, y & 15, z&15, skylightVal);
 			needsUpdate = true;
         }
     }
@@ -88,38 +94,40 @@ public class Chunk {
 	}
 	
 	public int getBlockID(int x, int y, int z){
+        x&=15;
+        z&=15;
 		int sect = y >> 4;
-        if (sect >= DataArrays.length){
+        if (sect >= DataArrays.length || sect < 0){
             return 0;
         }else{
-            return DataArrays[sect] != null ? DataArrays[sect].getBlock(x, y & 15, z) : 0;
+            return DataArrays[sect] != null ? DataArrays[sect].getBlock(x&15, y & 15, z&15) : 0;
         }
     }
 	
 	public int getBlockData(int x, int y, int z){
 		int sect = y >> 4;
-        if (sect >= DataArrays.length){
+        if (sect >= DataArrays.length || sect < 0){
             return 0;
         }else{
-            return DataArrays[sect] != null ? DataArrays[sect].getBlockData(x, y & 15, z) : 0;
+            return DataArrays[sect] != null ? DataArrays[sect].getBlockData(x&15, y & 15, z&15) : 0;
         }
     }
 	
 	public int getLight(int x, int y, int z){
 		int sect = y >> 4;
-        if (sect >= DataArrays.length){
+        if (sect >= DataArrays.length || sect < 0){
             return 0;
         }else{
-            return DataArrays[sect] != null ? DataArrays[sect].getLight(x, y & 15, z) : 0;
+            return DataArrays[sect] != null ? DataArrays[sect].getLight(x&15, y & 15, z&15) : 0;
         }
     }
 	
 	public int getSkylight(int x, int y, int z){
 		int sect = y >> 4;
-        if (sect >= DataArrays.length){
+        if (sect >= DataArrays.length || sect < 0){
             return 0;
         }else{
-            return DataArrays[sect] != null ? DataArrays[sect].getSkylight(x, y & 15, z) : 0;
+            return DataArrays[sect] != null ? DataArrays[sect].getSkylight(x&15, y & 15, z&15) : 0;
         }
     }
 	

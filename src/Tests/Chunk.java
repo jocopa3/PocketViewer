@@ -44,7 +44,7 @@ public class Chunk {
 		
 		heights = new byte[width][length];
 		
-		height = 127; //Default for pocket as of 0.9.0
+		height = 128; //Default for pocket as of 0.9.0
 		dirtyColumns = new NibbleArray(width*length);
 		DataArrays = new StorageArray[height >> 4];
 		for(int i = 0; i < DataArrays.length; i++){
@@ -184,14 +184,17 @@ public class Chunk {
 		java.util.ArrayList<Float> buff = new java.util.ArrayList<Float>();
 		java.util.ArrayList<Float> colorBuff = new java.util.ArrayList<Float>();
 		//java.util.ArrayList<Float> textureBuff = new java.util.ArrayList<Float>();
+        
+        Block b;
+        float[][] face;
 		for(int x = 0; x < width; x++){
 			for(int y = 0; y < height; y++){
 				for(int z = 0; z < length; z++){
 					if(getBlockID(x,y,z)>0){
-						Block b = new Block(x,y,z);
+                        b = new Tests.Block(x,y,z);
 						if(world.getBlockID(chunkx*16+x-1,y,chunkz*16+z)==0){
 							//BlockRender.getRight(id);
-							float[][] face = b.getRightC();
+							face = b.getRightC();
 							for(int i = 0; i < face[0].length; i++){
 								buff.add(face[0][i]);
 								colorBuff.add(face[1][i]-((0.05f*getSkylight(x,y,z))));
@@ -199,35 +202,35 @@ public class Chunk {
 							
 						}
 						if(world.getBlockID(chunkx*16+x+1,y,chunkz*16+z)==0){
-							float[][] face = b.getLeftC();
+							face = b.getLeftC();
 							for(int i = 0; i < face[0].length; i++){
 								buff.add(face[0][i]);
 								colorBuff.add(face[1][i]-((0.05f*getSkylight(x,y,z))));
 							}
 						}
 						if(world.getBlockID(chunkx*16+x,y-1,chunkz*16+z)==0){
-							float[][] face = b.getBottomC();
+							face = b.getBottomC();
 							for(int i = 0; i < face[0].length; i++){
 								buff.add(face[0][i]);
 								colorBuff.add(face[1][i]-((0.05f*getSkylight(x,y,z))));
 							}
 						}
 						if(world.getBlockID(chunkx*16+x,y+1,chunkz*16+z)==0){
-							float[][] face = b.getTopC();
+							face = b.getTopC();
 							for(int i = 0; i < face[0].length; i++){
 								buff.add(face[0][i]);
 								colorBuff.add(face[1][i]-((0.05f*getSkylight(x,y,z))));
 							}
 						}
 						if(world.getBlockID(chunkx*16+x,y,chunkz*16+z-1)==0){
-							float[][] face = b.getFrontC();
+							face = b.getFrontC();
 							for(int i = 0; i < face[0].length; i++){
 								buff.add(face[0][i]);
 								colorBuff.add(face[1][i]-((0.05f*getSkylight(x,y,z))));
 							}
 						}
 						if(world.getBlockID(chunkx*16+x,y,chunkz*16+z+1)==0){
-							float[][] face = b.getBackC();
+							face = b.getBackC();
 							for(int i = 0; i < face[0].length; i++){
 								buff.add(face[0][i]);
 								colorBuff.add(face[1][i]-((0.05f*getSkylight(x,y,z))));

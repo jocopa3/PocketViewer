@@ -17,10 +17,10 @@ public class BlockRenderer {
 	
 	public static Vertex[] getBack(float x, float y, float z){
 		Vertex v1,v2,v3,v4;
-		v1 = new Vertex(x,y+1,z,0,1,1,0,0);
-		v2 = new Vertex(x+1,y+1,z,0,1,1,0,0);
-		v3 = new Vertex(x+1,y+1,z+1,0,1,1,0,0);
-		v4 = new Vertex(x,y+1,z+1,0,1,1,0,0);
+		v1 = new Vertex(x,y+1,z+1,0,1,1,0,0);
+		v2 = new Vertex(x+1,y+1,z+1,0,1,1,0,0);
+		v3 = new Vertex(x+1,y,z+1,0,1,1,0,0);
+		v4 = new Vertex(x,y,z+1,0,1,1,0,0);
 		return new Vertex[]{v1,v2,v3,v4};
 	}
 	

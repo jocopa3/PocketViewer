@@ -8,7 +8,6 @@ public class Block {
 	final float x;
 	final float y;
 	final float z;
-	public static final int SIZE = 2;
 
 	public Block(float x, float y, float z) {
 		this.x = x;

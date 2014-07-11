@@ -26,11 +26,11 @@ public class ChunkManager {
 		
 		posx = 0;
 		posz = 0;
-		
+        
 		this.width = size;
 		this.length = size;
 		
-		worldsource = new WorldSource(world.seed);
+		worldsource = new WorldSource(world);
 	}
 	
 	public ChunkManager(World world, int width, int length){
@@ -61,9 +61,6 @@ public class ChunkManager {
 		
 		//System.out.println(x+" "+z);
 		chunks[x][z] = worldsource.getChunk(posx*width+x, posz*length+z);
-		chunks[x][z].setBlockID(0, 0, 0, 1);
-		
-		System.out.println(chunks[x][z].getBlockID(0, 0, 0));
 	}
 	
 	public Chunk getChunk(int x, int z){
@@ -84,19 +81,19 @@ public class ChunkManager {
 		int cx = x >> 4;
 		int cz = z >> 4;
 		
-		if( cx < posx || cx > posx + width || cz < posz || cz > posz + width)
+		if( cx < posx || cx >= posx + width || cz < posz || cz >= posz + length)
 			return 0;
-		
-		return chunks[cx & width][cz & length].getBlockID(x & 15, y, z & 15);
+        
+		return chunks[cx][cz].getBlockID(x & 15, y, z & 15);
 	}
 	
 	public void setBlockID(int x, int y, int z, int id){
 		int cx = x >> 4;
 		int cz = z >> 4;
 		
-		if(cx < posx || cx > posx + width || cz < posz || cz > posz + width)
+		if(cx < posx || cx >= posx + width || cz < posz || cz >= posz + width)
 			return;
 		
-		chunks[cx & width][cz & length].setBlockID(x & 15, y, z & 15, id);
+		chunks[cx][cz].setBlockID(x, y, z, id);
 	}
 }

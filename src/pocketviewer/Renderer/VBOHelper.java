@@ -30,7 +30,7 @@ public class VBOHelper {
 	
 	public static final int DEFAULT_BUFFER_SIZE = 1572864; //16*16*128*6*8
 	public static final int DEFAULT_BUFFER_AMOUNT = 16; //16
-	public static int VERTEX_SIZE = 8; //Amount of components per vertex (X,Y,Z,R,G,B,U,V)
+	public int VERTEX_SIZE = 8; //Amount of components per vertex (X,Y,Z,R,G,B,U,V)
 	
 	public boolean shouldDraw = false;
 	
@@ -102,23 +102,22 @@ public class VBOHelper {
 			VERTEX_SIZE -= 2;
 		else if(!texturing && texture)
 			VERTEX_SIZE += 2;
-		
-		
+
 		texturing = texture;
 	}
 	
 	//Initialize the buffer to prepare for vertices
 	public void start(){
 		buffer = BufferUtils.createFloatBuffer(bufferSize);
+        //buffer.clear();
 		running = true;
-		addVertices(BlockRenderer.getBack(2,2,2));
-		
 	}
 	
 	//Handles and binds the buffer; returns the current buffer handler
 	public int stop(){
 		running = false;
-		buffer.flip();
+
+        buffer.flip();
 		
 		bufferHandler[current] = glGenBuffers();
 		bufferLength[current] = vertexCount;
@@ -179,8 +178,15 @@ public class VBOHelper {
 	
 	//Returns if the buffer is too full to hold another quad
 	public boolean isFull(){
-		//return vertexPos + 4*VERTEX_SIZE > vertexCount*VERTEX_SIZE;
-		return false;
+        /* Needs fixing
+        if(drawing)
+            return vertexPos + 4*VERTEX_SIZE > vertexCount*VERTEX_SIZE;
+        if(coloring)
+            return colorPos + 4*VERTEX_SIZE > vertexCount*VERTEX_SIZE;
+        if(texturing)
+            return texturePos + 4*VERTEX_SIZE > vertexCount*VERTEX_SIZE;
+        */
+		return false; //Potential for bug
 	}
 	
 	//Used in emergency; intializes a new buffer to continue accepting vertices
@@ -192,8 +198,8 @@ public class VBOHelper {
 	}
 	
 	//Add an array of vertices
-	public void addVertices(Vertex[] verticies){
-		for(Vertex v : verticies)
+	public void addVertices(Vertex[] vertices){
+		for(Vertex v : vertices)
 			addVertex(v);
 	}
 	
@@ -201,13 +207,19 @@ public class VBOHelper {
 	public void addVertex(Vertex vertex){
 		if(isFull())
 			handleFullBuffer();
-		
+        
 		if(drawing)
-			buffer.put(vertexPos, vertex.getX()).put(vertexPos+1, vertex.getY()).put(vertexPos+2, vertex.getZ());
+            //buffer.put(vertexPos, vertex.getX()).put(vertexPos+1, vertex.getY()).put(vertexPos+2, vertex.getZ());
+            //buffer.put(vertex.getX()).put(vertex.getY()).put(vertex.getZ());
+            buffer.put(vertex.getXYZ());
 		if(coloring)
-			buffer.put(colorPos, vertex.getR()).put(colorPos+1, vertex.getG()).put(colorPos+2, vertex.getB());
+			//buffer.put(colorPos, vertex.getR()).put(colorPos+1, vertex.getG()).put(colorPos+2, vertex.getB());
+            //buffer.put(vertex.getR()).put(vertex.getG()).put(vertex.getB());
+            buffer.put(vertex.getRGB());
 		if(texturing)
-			buffer.put(texturePos, vertex.getU()).put(texturePos+1, vertex.getV());
+			//buffer.put(texturePos, vertex.getU()).put(texturePos+1, vertex.getV());
+            //buffer.put(vertex.getU()).put(vertex.getV());
+            buffer.put(vertex.getUV());
 		
 		vertexPos += VERTEX_SIZE;
 		colorPos += VERTEX_SIZE;

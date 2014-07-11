@@ -49,7 +49,7 @@ public class PocketViewer {
 		initDisplay();
 		initMatrix();
 		
-		world = new World(1, 456);
+		world = new World(16, 456);
 		worldRenderer = new WorldRenderer(world);
 		
 		System.out.println("Starting render loop!");
@@ -59,7 +59,6 @@ public class PocketViewer {
 		
         while(!Display.isCloseRequested()&&!Keyboard.isKeyDown(Keyboard.KEY_ESCAPE)) {
             glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-			glColor3f(1,1,1); //Default color
 			
 			worldRenderer.render();
 			
@@ -68,6 +67,8 @@ public class PocketViewer {
 			timer.updateFPS();
 			Display.setTitle("FPS: "+timer.getFPS());
         }
+        
+        worldRenderer.chunkRenderer.deleteAllChunkBuffers();
 
         Display.destroy();
         System.exit(0);

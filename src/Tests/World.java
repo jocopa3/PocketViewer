@@ -71,16 +71,20 @@ public class World {
 		
 		chunks[x][z] = new Chunk(this,x,z);
 
+        int max = 0;
+        
 		for(int ax = 16*x; ax < 16*x+16; ax++){
 			for(int az = 16*z; az < 16*z+16; az++){
 				float ah = noise.noise(ax/150f, az/150f, 0)*chunks[x][z].height/2;
 				for(int ay = 0; ay < ah; ay++){
-					if(noise.simplex_noise(3,ax/70f, ay/70f, az/70f)>2.5){
+					if(noise.simplex_noise(2,ax/70f, ay/70f, az/70f)>2){
 						chunks[x][z].setBlockID(ax, ay, az, 1);
-						
+                        if(ay>max)
+                            max = ay;
 					}
 				}
-				chunks[x][z].setMaxHeight(ax,az,(int)ah);
+                chunks[x][z].setMaxHeight(ax,az,max);
+                max = 0;
 			}
 		}
 	}

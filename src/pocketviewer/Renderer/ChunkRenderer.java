@@ -46,7 +46,7 @@ public class ChunkRenderer {
 	public void renderAllChunks(){
 		for(int x = 0; x < chunks.width; x++){
 			for(int z = 0; z < chunks.length; z++){
-				renderChunk(x,z);
+				renderChunk(x, z);
 			}
 		}
 	}
@@ -65,32 +65,35 @@ public class ChunkRenderer {
 		glPushMatrix();
 		glTranslatef(x << 4, 0, z << 4);
 		
+        
+        //glTexCoordPointer(2, GL_FLOAT, 32, 8);
+
+		glEnableClientState(GL_VERTEX_ARRAY);
+		glEnableClientState(GL_COLOR_ARRAY);
+        
 		for(int i = 0; i < 1; i++){
-			if(chunkBuffer[i]<=0||chunkBufferLengths[i]<=0)
+			if(chunkBuffer[i] <= 0 || chunkBufferLengths[i] <= 0)
 				continue;
 			
 			glBindBuffer(GL_ARRAY_BUFFER, chunkBuffer[i]);
-
-			glVertexPointer(3, GL_FLOAT, 32, 0); // float at index 0
-			glColorPointer(3, GL_FLOAT, 32, 12);
-			//glTexCoordPointer(2, GL_FLOAT, 32, 8);
-
-			glEnableClientState(GL_VERTEX_ARRAY);
-			glEnableClientState(GL_COLOR_ARRAY);
+            
+            glVertexPointer(3, GL_FLOAT, 24, 0);
+            glColorPointer(3, GL_FLOAT, 24, 12);
+            
 			//glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 			
 			//System.out.println(chunkBufferLengths[i]+" "+chunkBuffer[i]); //Debug
 			
-			//glDrawArrays(GL_QUADS, 0, chunkBufferLengths[i]);
-
-			glBindBuffer(GL_ARRAY_BUFFER, 0);
+			glDrawArrays(GL_QUADS, 0, chunkBufferLengths[i]);
+            //glDrawElements(GL_QUADS, chunkBufferLengths[i]);
 
 			//glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-			glDisableClientState(GL_COLOR_ARRAY);
-			glDisableClientState(GL_VERTEX_ARRAY);
 			
-			glBindBuffer(GL_ARRAY_BUFFER, 0);
 		}
+        glDisableClientState(GL_COLOR_ARRAY);
+		glDisableClientState(GL_VERTEX_ARRAY);
+			
+		glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 		glPopMatrix();
 	}
@@ -100,55 +103,59 @@ public class ChunkRenderer {
 	public Chunk updateChunkVBO(Chunk chunk, int cx, int cz){
 		long g = System.currentTimeMillis(); //Measure performance
 		
+        int posx = cx << 4;
+        int posz = cz << 4;
+        
 		VBOHelper vboHelper = new VBOHelper(); //Create a new VBOHelper
+        vboHelper.shouldTexture(false); //For now, do nothing with texture offsets
 		vboHelper.start(); //Start the VBOHelper
-		
+
 		//Occlusion culler; needs eventual fixing to check if block is solid/opaque
+        Vertex[] face;
 		for(int x = 0; x < chunk.width; x++){
 			for(int y = 0; y < chunk.height; y++){
 				for(int z = 0; z < chunk.length; z++){
-					if(world.getBlockID(x, y, z) > 0 || (x==1&&y==1&&z==1)){ //Remove second statement; used for debug
-						if(world.getBlockID(cx*16 + x-1, y, cz*16 + z) == 0){ //Check right
-							Vertex[] face = blockRenderer.getRight(x, y, z);
+					if(world.getBlockID(posx + x, y, posz + z) > 0){
+						if(world.getBlockID(posx + x-1, y, posz + z) == 0){ //Check right
+							face = blockRenderer.getRight(x, y, z);
 							vboHelper.addVertices(face);
 						}
-						if(world.getBlockID(cx*16 + x+1, y, cz*16 + z) == 0){ //Check left
-							Vertex[] face = blockRenderer.getLeft(x, y, z);
+						if(world.getBlockID(posx + x+1, y, posz + z) == 0){ //Check left
+							face = blockRenderer.getLeft(x, y, z);
 							vboHelper.addVertices(face);
 						}
-						if(world.getBlockID(cx*16 + x, y-1, cz*16 + z) == 0){ //Check bottom
-							Vertex[] face = blockRenderer.getBottom(x, y, z);
+						if(world.getBlockID(posx + x, y-1, posz + z) == 0){ //Check bottom
+							face = blockRenderer.getBottom(x, y, z);
 							vboHelper.addVertices(face);
 						}
-						if(world.getBlockID(cx*16 + x, y+1, cz*16 + z) == 0){ //Check top
-							Vertex[] face = blockRenderer.getTop(x, y, z);
+						if(world.getBlockID(posx + x, y+1, posz + z) == 0){ //Check top
+							face = blockRenderer.getTop(x, y, z);
 							vboHelper.addVertices(face);
 						}
-						if(world.getBlockID(cx*16 + x, y, cz*16 + z-1) == 0){ //Check front
-							Vertex[] face = blockRenderer.getFront(x, y, z);
+						if(world.getBlockID(posx + x, y, posz + z-1) == 0){ //Check front
+							face = blockRenderer.getFront(x, y, z);
 							vboHelper.addVertices(face);
 						}
-						if(world.getBlockID(cx*16 + x, y, cz*16 + z+1) == 0){ //Check back
-							Vertex[] face = blockRenderer.getBack(x, y, z);
+						if(world.getBlockID(posx + x, y, posz + z+1) == 0){ //Check back
+							face = blockRenderer.getBack(x, y, z);
 							vboHelper.addVertices(face);
 						}
 					}
 				}
 			}
-		}
-		
-		Vertex[] face = BlockRenderer.getBack(2,2,2); //Debug
-		vboHelper.addVertices(face);
-		
+        }
+        
 		vboHelper.stop(); //End the VBOHelper
 		
 		buffers[cx][cz] = vboHelper.getBufferHandlers(); //Get VBO buffer handles
 		bufferLengths[cx][cz] = vboHelper.getBufferLengths(); //Get VBO element lengths
+        
+        vboHelper.cleanUp(true);
 		
-		System.out.println("Buffer ID: "+buffers[cx][cz][0]+" Element Length: "+bufferLengths[cx][cz][0]); //Debug buffer and length
+		//System.out.println("Buffer ID: "+buffers[cx][cz][0]+" Element Length: "+bufferLengths[cx][cz][0]); //Debug buffer and length
 		
 		chunk.needsUpdate = false; //Prevents updating the VBO again until necessary
-		System.out.println("Chunk VBO time: " + (System.currentTimeMillis()-g) + "ms"); //Debug
+		//System.out.println("Chunk VBO time: " + (System.currentTimeMillis()-g) + "ms"); //Debug
 		
 		return chunk; //Return the updated chunk back to the caller
 	}
