@@ -16,7 +16,6 @@ import pocketviewer.Objects.World;
 import org.lwjgl.BufferUtils;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL15.*;
-import pocketviewer.Blocks.Block;
 
 /**
  *
@@ -117,24 +116,24 @@ public class ChunkRenderer {
 			for(int y = 0; y < chunk.height; y++){
 				for(int z = 0; z < chunk.length; z++){
                     id = world.getBlockID(posx + x, y, posz + z);
-					if(id > 0 && Block.blocks[id] != null){
+					if(id > 0){
                         faces = BlockRenderer.get(id, x, y, z);
-						if(Block.blocks[world.getBlockID(posx + x-1, y, posz + z)] == null || world.getBlockID(posx + x-1, y, posz + z) == 0){ //Check left
+						if(world.getBlockID(posx + x-1, y, posz + z) == 0){ //Check left
 							vboHelper.addVertices(faces[LEFT]);
 						}
-						if(Block.blocks[world.getBlockID(posx + x+1, y, posz + z)] == null || world.getBlockID(posx + x+1, y, posz + z) == 0){ //Check right
+						if(world.getBlockID(posx + x+1, y, posz + z) == 0){ //Check right
 							vboHelper.addVertices(faces[RIGHT]);
 						}
-						if(Block.blocks[world.getBlockID(posx + x, y-1, posz + z)] == null || world.getBlockID(posx + x, y-1, posz + z) == 0){ //Check bottom
+						if(world.getBlockID(posx + x, y-1, posz + z) == 0){ //Check bottom
 							vboHelper.addVertices(faces[BOTTOM]);
 						}
-						if(Block.blocks[world.getBlockID(posx + x, y+1, posz + z)] == null || world.getBlockID(posx + x, y+1, posz + z) == 0){ //Check top
+						if(world.getBlockID(posx + x, y+1, posz + z) == 0){ //Check top
 							vboHelper.addVertices(faces[TOP]);
 						}
-						if(Block.blocks[world.getBlockID(posx + x, y, posz + z-1)] == null || world.getBlockID(posx + x, y, posz + z-1) == 0){ //Check front
+						if(world.getBlockID(posx + x, y, posz + z-1) == 0){ //Check front
 							vboHelper.addVertices(faces[FRONT]);
 						}
-						if(Block.blocks[world.getBlockID(posx + x, y, posz + z+1)] == null|| world.getBlockID(posx + x, y, posz + z+1) == 0){ //Check back
+						if(world.getBlockID(posx + x, y, posz + z+1) == 0){ //Check back
 							vboHelper.addVertices(faces[BACK]);
 						}
 					}

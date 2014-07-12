@@ -26,11 +26,11 @@ public class StoneBlock extends Block{
     public void initTextures(){
         this.faces = new Face[TOTAL_FACES];
         
-        this.faces[TOP] = new Face(0.5938f, 0.0f, 0.625f, 0.0625f);
-        this.faces[BOTTOM] = new Face(0.5938f, 0.0f, 0.625f, 0.0625f);
-        this.faces[LEFT] = new Face(0.5938f, 0.0f, 0.625f, 0.0625f);
-        this.faces[RIGHT] = new Face(0.5938f, 0.0f, 0.625f, 0.0625f);
-        this.faces[FRONT] = new Face(0.5938f, 0.0f, 0.625f, 0.0625f);
-        this.faces[BACK] = new Face(0.5938f, 0.0f, 0.625f, 0.0625f);
+        this.faces[TOP] = new Face(0.59375f, 0.0f, 0.03125f, 0.0625f);
+        this.faces[BOTTOM] = new Face(0.59375f, 0.0f, 0.03125f, 0.0625f);
+        this.faces[LEFT] = new Face(0.59375f, 0.0f, 0.03125f, 0.0625f);
+        this.faces[RIGHT] = new Face(0.59375f, 0.0f, 0.03125f, 0.0625f);
+        this.faces[FRONT] = new Face(0.59375f, 0.0f, 0.03125f, 0.0625f);
+        this.faces[BACK] = new Face(0.59375f, 0.0f, 0.03125f, 0.0625f);
     }
 }
