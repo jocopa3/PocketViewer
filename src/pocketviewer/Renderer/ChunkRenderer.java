@@ -8,6 +8,7 @@ import java.nio.FloatBuffer;
 import java.nio.IntBuffer;
 import java.util.Arrays;
 
+import static pocketviewer.Objects.BlockFace.*;
 import pocketviewer.Objects.Chunk;
 import pocketviewer.Objects.ChunkManager;
 import pocketviewer.Objects.World;
@@ -32,7 +33,8 @@ public class ChunkRenderer {
 	public int[][][] bufferLengths;
 	
 	FloatBuffer vertexArray;
-	
+    public boolean updated = false; //One chunk update per frame only (for now?)
+    
 	public ChunkRenderer(WorldRenderer worldRenderer){
 		this.worldRenderer = worldRenderer;
 		world = worldRenderer.world;
@@ -49,6 +51,7 @@ public class ChunkRenderer {
 				renderChunk(x, z);
 			}
 		}
+        updated = false;
 	}
 
 	public void renderChunk(int x, int z){
@@ -59,7 +62,7 @@ public class ChunkRenderer {
 		int[] chunkBufferLengths = getChunkBufferLength(x, z);
 		Chunk c = chunks.getChunk(x, z);
 
-		if(c.needsUpdate || chunkBuffer == null)
+		if(!updated && (c.needsUpdate || chunkBuffer == null))
 			chunks.setChunk(x, z, updateChunkVBO(c, x, z)); //Update and set the chunk as updated
 
 		glPushMatrix();
@@ -106,34 +109,31 @@ public class ChunkRenderer {
 		vboHelper.start(); //Start the VBOHelper
 
 		//Occlusion culler; needs eventual fixing to check if block is solid/opaque
-        Vertex[] face;
+        Vertex[][] faces;
+        int id;
 		for(int x = 0; x < chunk.width; x++){
 			for(int y = 0; y < chunk.height; y++){
 				for(int z = 0; z < chunk.length; z++){
-					if(world.getBlockID(posx + x, y, posz + z) > 0){
-						if(world.getBlockID(posx + x-1, y, posz + z) == 0){ //Check right
-							face = blockRenderer.getRight(x, y, z);
-							vboHelper.addVertices(face);
+                    id = world.getBlockID(posx + x, y, posz + z);
+					if(id > 0){
+                        faces = BlockRenderer.get(id, x, y, z);
+						if(world.getBlockID(posx + x-1, y, posz + z) == 0){ //Check left
+							vboHelper.addVertices(faces[LEFT]);
 						}
-						if(world.getBlockID(posx + x+1, y, posz + z) == 0){ //Check left
-							face = blockRenderer.getLeft(x, y, z);
-							vboHelper.addVertices(face);
+						if(world.getBlockID(posx + x+1, y, posz + z) == 0){ //Check right
+							vboHelper.addVertices(faces[RIGHT]);
 						}
 						if(world.getBlockID(posx + x, y-1, posz + z) == 0){ //Check bottom
-							face = blockRenderer.getBottom(x, y, z);
-							vboHelper.addVertices(face);
+							vboHelper.addVertices(faces[BOTTOM]);
 						}
 						if(world.getBlockID(posx + x, y+1, posz + z) == 0){ //Check top
-							face = blockRenderer.getTop(x, y, z);
-							vboHelper.addVertices(face);
+							vboHelper.addVertices(faces[TOP]);
 						}
 						if(world.getBlockID(posx + x, y, posz + z-1) == 0){ //Check front
-							face = blockRenderer.getFront(x, y, z);
-							vboHelper.addVertices(face);
+							vboHelper.addVertices(faces[FRONT]);
 						}
 						if(world.getBlockID(posx + x, y, posz + z+1) == 0){ //Check back
-							face = blockRenderer.getBack(x, y, z);
-							vboHelper.addVertices(face);
+							vboHelper.addVertices(faces[BACK]);
 						}
 					}
 				}
@@ -151,7 +151,9 @@ public class ChunkRenderer {
 		
 		chunk.needsUpdate = false; //Prevents updating the VBO again until necessary
 		//System.out.println("Chunk VBO time: " + (System.currentTimeMillis()-g) + "ms"); //Debug
-		
+        
+		updated = true;
+        
 		return chunk; //Return the updated chunk back to the caller
 	}
 	

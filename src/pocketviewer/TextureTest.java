@@ -23,7 +23,7 @@ import java.awt.Transparency;
 public class TextureTest {
 	
     public static String location = "/res/images/terrain-atlas.tga";
-    public static int scale = 1;
+    public static int scale = 3;
     
 	/**
 	 * @param args the command line arguments

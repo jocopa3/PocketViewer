@@ -15,17 +15,19 @@ public class Block {
 	public int z;
 	public int id;
 	public int data;
+    
+    public boolean isOpaque;
+    
+    public boolean isCube;
 	
 	public Face[] faces;
 	
-	public static Block[] blocks = new Block[256];
+	public static final Block[] blocks = new Block[256];
+    public static final Block air = new AirBlock(0);
+    public static final Block stone = new StoneBlock(1);
+    public static final Block grass = new GrassBlock(2);
 	
-	public static void initBlocks(){
-		blocks[0] = new AirBlock(0);
-		blocks[1] = new StoneBlock(1);
-		blocks[2] = new GrassBlock(2);
-	}
-	
+    /* This stuff will be implemented via specific block logic methods
 	public Block(int x, int y, int z, int id){
 		this.x = x;
 		this.y = y;
@@ -43,17 +45,20 @@ public class Block {
 		this.data = data;
 		faces = new Face[6];
 	}
-	
+	*/
+    
 	public Block(int id){
 		this.id = id;
 		this.data = 0;
 		faces = new Face[6];
+        blocks[id] = this;
 	}
 	
 	public Block(int id, int data){
 		this.id = id;
 		this.data = data;
 		faces = new Face[6];
+        blocks[id] = this;
 	}
 	
 	public int getID(){
@@ -80,6 +85,8 @@ public class Block {
 		return new int[]{x,y,z};
 	}
 	
+    public void initTextures(){}
+    
 	public Face getFace(int side){
 		return faces[side];
 	}
@@ -87,4 +94,8 @@ public class Block {
 	public void setFace(int side, Face face){
 		faces[side] = face;
 	}
+    
+    public boolean isOpaque(){
+        return isOpaque;
+    }
 }

@@ -45,6 +45,7 @@ public class Timer {
 			fpsTemp = 0; //reset the FPS counter
 			lastFPS += 1000; //add one second
 		}
+        
 		fpsTemp++;
 	}
 	

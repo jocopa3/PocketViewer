@@ -32,7 +32,7 @@ public class VBOHelper {
 	public static final int DEFAULT_BUFFER_AMOUNT = 16; //16
 	public int VERTEX_SIZE = 8; //Amount of components per vertex (X,Y,Z,R,G,B,U,V)
 	
-	public boolean shouldDraw = false;
+	//public boolean shouldDraw = false;
 	
 	//Create a new buffer using the default size
 	public VBOHelper(){

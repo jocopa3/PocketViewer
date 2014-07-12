@@ -51,7 +51,7 @@ public class PocketViewer {
 		initDisplay();
 		initMatrix();
 		
-		world = new World(16, 456);
+		world = new World(1, 456);
 		worldRenderer = new WorldRenderer(world);
 		
 		System.out.println("Starting render loop!");
