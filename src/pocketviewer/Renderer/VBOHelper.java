@@ -21,6 +21,7 @@ public class VBOHelper {
 	public boolean drawing = true; //Whether or not the VBO will add vertices
 	public boolean coloring = true; //Whether or not the VBO will add color values
 	public boolean texturing = true; //Whether or not the VBO will add texture coords
+    
 	public int vertexPos = 0; //Start pos for verticies
 	public int colorPos = 3; //Start pos for colors
 	public int texturePos = 6; //Start pos for textures

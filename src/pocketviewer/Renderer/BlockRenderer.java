@@ -14,26 +14,23 @@ public class BlockRenderer {
 	public BlockRenderer(){}
     
     public static Vertex[][] get(int id, float x, float y, float z){
-        /*
         if(Block.blocks[id].isCube){
             return getCuboid(id, x, y, z);
         }else{
             return getCuboid(1, x, y, z); //Default is air for now
         }
-        */
-        return getCuboid(1,x,y,z);
     }
     
     public static Vertex[][] getCuboid(int id, float x, float y, float z){
-        Face[] faceTextures = new StoneBlock(1).faces;
+        Face[] faceTextures = Block.blocks[id].faces;
         Vertex[][] faces = new Vertex[TOTAL_FACES][4];
         
         faces[TOP] = getTop(faceTextures[TOP],x,y,z);
-        faces[BOTTOM] = getTop(faceTextures[BOTTOM],x,y,z);
-        faces[LEFT] = getTop(faceTextures[LEFT],x,y,z);
-        faces[RIGHT] = getTop(faceTextures[RIGHT],x,y,z);
-        faces[FRONT] = getTop(faceTextures[FRONT],x,y,z);
-        faces[BACK] = getTop(faceTextures[BACK],x,y,z);
+        faces[BOTTOM] = getBottom(faceTextures[BOTTOM],x,y,z);
+        faces[LEFT] = getLeft(faceTextures[LEFT],x,y,z);
+        faces[RIGHT] = getRight(faceTextures[RIGHT],x,y,z);
+        faces[FRONT] = getFront(faceTextures[FRONT],x,y,z);
+        faces[BACK] = getBack(faceTextures[BACK],x,y,z);
         
         return faces;
     }

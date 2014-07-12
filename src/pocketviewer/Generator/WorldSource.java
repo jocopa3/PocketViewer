@@ -31,21 +31,37 @@ public class WorldSource {
         int posz = z << 4;
         
 		int height;
+        
         int X;
         int Z;
 		for(int ax = 0; ax < 16; ax++){
 			for(int az = 0; az < 16; az++){
                 X = ax + posx;
                 Z = az + posz;
-				height = (int)(noise.noise(X/70f, Z/70f, 0)*chunk.height/2); //Heightmap
+                int max = 0;
+				height = (int)(noise.noise(X/150f, Z/150f, 0)*chunk.height/2); //Heightmap
 				for(int ay = 0; ay < height; ay++){
-                    if(noise.octaveNoise(2,X/70f, ay/70f, Z/70f)>1.8){ //Create a "cave" effect via 3D noise
-                        chunk.setBlockID(ax, ay, az, 1);
-                    }
+                    //if(noise.octaveNoise(2, X/70f, ay/70f, Z/70f) > 2f){ //Create a "cave" effect via 3D noise
+                        if(height-ay == 1)
+                            chunk.setBlockID(ax, ay, az, 2); //Grass
+                        else if(height-ay < 5)
+                            chunk.setBlockID(ax, ay, az, 3); //Dirt
+                        else
+                            chunk.setBlockID(ax, ay, az, 1); //Stone
+                        if(ay > max)
+                            max = ay;
+                    //}
 				}
+                chunk.setMaxHeight(ax, az, max);
 			}
 		}
         
+        //chunk = updateSkyLight(chunk);
+        
 		return chunk;
 	}
+    
+    public Chunk updateSkyLight(Chunk chunk){
+        return chunk;
+    }
 }

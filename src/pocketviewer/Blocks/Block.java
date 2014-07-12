@@ -26,6 +26,7 @@ public class Block {
     public static final Block air = new AirBlock(0);
     public static final Block stone = new StoneBlock(1);
     public static final Block grass = new GrassBlock(2);
+    public static final Block dirt = new DirtBlock(3);
 	
     /* This stuff will be implemented via specific block logic methods
 	public Block(int x, int y, int z, int id){

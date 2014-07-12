@@ -52,6 +52,7 @@ public class ChunkRenderer {
 			}
 		}
         updated = false;
+        //System.out.println(worldRenderer.player.camera.getYaw());
 	}
 
 	public void renderChunk(int x, int z){

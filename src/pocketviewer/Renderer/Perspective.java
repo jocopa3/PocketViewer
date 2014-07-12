@@ -22,10 +22,12 @@ public class Perspective {
 	
 	public void yaw(float amount){
 		yaw += amount;
+        yaw %= 360;
 	}
  
 	public void pitch(float amount){
 		pitch += amount;
+        pitch %= 180;
 		if(pitch > 90)
 			pitch = 90;
 		else if(pitch < -90)
@@ -59,10 +61,30 @@ public class Perspective {
 	public void moveDown(float distance){
 	    position.y += distance;
 	}
-	
-	public void lookThrough(){
+    
+    public void lookThrough(){
         glRotatef(pitch, 1.0f, 0.0f, 0.0f);
         glRotatef(yaw, 0.0f, 1.0f, 0.0f);
         glTranslatef(position.x, position.y, position.z);
+    }
+    
+    public float getX(){
+        return position.x;
+    }
+    
+    public float getY(){
+        return position.y;
+    }
+    
+    public float getZ(){
+        return position.z;
+    }
+    
+    public float getPitch(){
+        return pitch;
+    }
+    
+    public float getYaw(){
+        return yaw;
     }
 }
