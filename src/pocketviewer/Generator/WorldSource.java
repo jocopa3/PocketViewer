@@ -24,7 +24,27 @@ public class WorldSource {
         this.world = world;
 		noise = new SimplexNoise(world.seed);
 	}
-	
+    
+    public Chunk getChunk(int x, int z){
+		Chunk chunk = new Chunk(world, x, z);
+		int posx = x << 4;
+        int posz = z << 4;
+        
+        
+        int X;
+        int Z;
+		for(int ax = 0; ax < 16; ax++){
+			for(int az = 0; az < 16; az++){
+                X = ax + posx;
+                Z = az + posz;
+                if(ax%2==az%2)
+                    chunk.setBlockID(ax, 0, az, X);
+            }
+        }
+        return chunk;
+    }
+    
+	/*
 	public Chunk getChunk(int x, int z){
 		Chunk chunk = new Chunk(world, x, z);
 		int posx = x << 4;
@@ -60,6 +80,7 @@ public class WorldSource {
         
 		return chunk;
 	}
+    */
     
     public Chunk updateSkyLight(Chunk chunk){
         return chunk;

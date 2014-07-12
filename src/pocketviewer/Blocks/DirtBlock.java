@@ -26,11 +26,11 @@ public class DirtBlock extends Block{
     @Override
     public void initTextures(){
         this.faces = new Face[TOTAL_FACES];
-        this.faces[TOP] = new Face(0.34375f, 0.0625f, 0.03125f, 0.0625f);
-        this.faces[BOTTOM] = new Face(0.34375f, 0.0625f, 0.03125f, 0.0625f);
-        this.faces[LEFT] = new Face(0.34375f, 0.0625f, 0.03125f, 0.0625f);
-        this.faces[RIGHT] = new Face(0.34375f, 0.0625f, 0.03125f, 0.0625f);
-        this.faces[FRONT] = new Face(0.34375f, 0.0625f, 0.03125f, 0.0625f);
-        this.faces[BACK] = new Face(0.34375f, 0.0625f, 0.03125f, 0.0625f);
+        this.faces[TOP] = new Face(0.3438f, 0.0625f, 0.375f, 0.125f);
+        this.faces[BOTTOM] = new Face(0.3438f, 0.0625f, 0.375f, 0.125f);
+        this.faces[LEFT] = new Face(0.3438f, 0.0625f, 0.375f, 0.125f);
+        this.faces[RIGHT] = new Face(0.3438f, 0.0625f, 0.375f, 0.125f);
+        this.faces[FRONT] = new Face(0.3438f, 0.0625f, 0.375f, 0.125f);
+        this.faces[BACK] = new Face(0.3438f, 0.0625f, 0.375f, 0.125f);
     }
 }
