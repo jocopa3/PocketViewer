@@ -65,7 +65,7 @@ public class PocketViewer {
 			worldRenderer.render();
 			
             Display.update();
-            //Display.sync(60);
+            Display.sync(60);
 			timer.updateFPS();
 			Display.setTitle("FPS: "+timer.getFPS());
         }

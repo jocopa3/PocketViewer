@@ -14,10 +14,10 @@ public class BlockRenderer {
 	public BlockRenderer(){}
     
     public static Vertex[][] get(int id, float x, float y, float z){
-        if(Block.blocks[id].isCube){
+        if(Block.blocks[id] != null && Block.blocks[id].isCube){
             return getCuboid(id, x, y, z);
         }else{
-            return getCuboid(1, x, y, z); //Default is air for now
+            return getCuboid(0, x, y, z); //Default is air for now
         }
     }
     

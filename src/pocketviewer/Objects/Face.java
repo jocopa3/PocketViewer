@@ -24,16 +24,16 @@ public class Face {
      * atlas. All coordinates should be a float number in the range of 
      * 0 and 1.
      *
-     * @param u  the x coordinate of the top-left corner of the texture
-     * @param v  the y coordinate of the top-left corner of the texture
-     * @param width the width of the texture along the v axis
-     * @param height the height of the texture along the u axis
+     * @param u1  the x coordinate of the top-left corner of the texture
+     * @param v1  the y coordinate of the top-left corner of the texture
+     * @param u2 the x coordinate of the bottom-right corner of the texture
+     * @param v2 the y coordinate of the bottom-right corner of the texture
      */
-	public Face(float u, float v, float width, float height){
-		this.minU = u;
-		this.minV = v;
-		this.maxU = u + width;
-		this.maxV = v + height;
+	public Face(float u1, float v1, float u2, float v2){
+		this.minU = u1;
+		this.minV = v1;
+		this.maxU = u2;
+		this.maxV = v2;
         
         //Default face color is white
         this.r = 1;
@@ -41,7 +41,7 @@ public class Face {
         this.b = 1;
 	}
     
-        /** 
+    /** 
      * Creates a new block face object to store face-specific texture
      * coordinates.
      * <p>
@@ -50,17 +50,17 @@ public class Face {
      * 0 and 1. Colors should also be a float number in the range of 0
      * and 1.
      *
-     * @param u  the x coordinate of the top-left corner of the texture
-     * @param v  the y coordinate of the top-left corner of the texture
-     * @param width the width of the texture along the v axis
-     * @param height the height of the texture along the u axis
+     * @param u1  the x coordinate of the top-left corner of the texture
+     * @param v1  the y coordinate of the top-left corner of the texture
+     * @param u2 the x coordinate of the bottom-right corner of the texture
+     * @param v2 the y coordinate of the bottom-right corner of the texture
      * @param gray the brightness of the texture (1 = normal, 0 = dark)
      */
-	public Face(float u, float v, float width, float height, float gray){
-		this.minU = u;
-		this.minV = v;
-		this.maxU = u + width;
-		this.maxV = v + height;
+	public Face(float u1, float v1, float u2, float v2, float gray){
+		this.minU = u1;
+		this.minV = v1;
+		this.maxU = u2;
+		this.maxV = v2;
         
         //Set face color as grayish tone (used in lighting)
         this.r = gray;
