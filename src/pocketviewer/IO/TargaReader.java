@@ -1,11 +1,12 @@
 package pocketviewer.IO;
 
+import java.awt.geom.AffineTransform;
+import java.awt.image.AffineTransformOp;
 import java.awt.image.BufferedImage;
 import java.io.BufferedInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.nio.ByteBuffer;
 
 // http://paulbourke.net/dataformats/tga/
 // little endian multi-byte integers: "low-order byte,high-order byte"
@@ -97,6 +98,13 @@ public class TargaReader {
 
                 BufferedImage bimg = new BufferedImage(width, height, BufferedImage.TYPE_INT_ARGB);
                 bimg.setRGB(0, 0, width,height, pixels, 0,width);
+                
+                //Flip horizontally because TargaReader reads wrong
+                AffineTransform tx = AffineTransform.getScaleInstance(1, -1);
+                tx.translate(0, -bimg.getHeight());
+            	AffineTransformOp op = new AffineTransformOp(tx, AffineTransformOp.TYPE_NEAREST_NEIGHBOR);
+                bimg = op.filter(bimg, null);
+        
                 return bimg;
         }
 }

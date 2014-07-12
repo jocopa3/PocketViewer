@@ -39,6 +39,8 @@ public class PocketViewer {
 	public static Timer timer = new Timer();
 	public static World world;
 	public static WorldRenderer worldRenderer;
+    
+    public static float fov = 80; //Now a variable!
 	
 	/**
 	 * @param args the command line arguments
@@ -91,7 +93,7 @@ public class PocketViewer {
 		glMatrixMode(GL_PROJECTION);
 		glLoadIdentity();
 		
-		gluPerspective((float) 30, Display.getWidth() / Display.getHeight(), 0.001f, 10000L);
+		gluPerspective(fov, Display.getWidth() / Display.getHeight(), 0.001f, 10000L);
 		glMatrixMode(GL_MODELVIEW);
 		
 		glEnable(GL_DEPTH_TEST);

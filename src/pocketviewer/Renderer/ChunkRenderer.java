@@ -65,31 +65,26 @@ public class ChunkRenderer {
 		glPushMatrix();
 		glTranslatef(x << 4, 0, z << 4);
 		
-        
-        //glTexCoordPointer(2, GL_FLOAT, 32, 8);
-
 		glEnableClientState(GL_VERTEX_ARRAY);
 		glEnableClientState(GL_COLOR_ARRAY);
+        glEnableClientState(GL_TEXTURE_COORD_ARRAY);
         
 		for(int i = 0; i < 1; i++){
-			if(chunkBuffer[i] <= 0 || chunkBufferLengths[i] <= 0)
+			if(chunkBuffer[i] <= 0 || chunkBufferLengths[i] <= 0) //Ignore any empty buffers
 				continue;
 			
 			glBindBuffer(GL_ARRAY_BUFFER, chunkBuffer[i]);
             
-            glVertexPointer(3, GL_FLOAT, 24, 0);
-            glColorPointer(3, GL_FLOAT, 24, 12);
-            
-			//glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+            glVertexPointer(3, GL_FLOAT, 32, 0);
+            glColorPointer(3, GL_FLOAT, 32, 12);
+            glTexCoordPointer(2, GL_FLOAT, 32, 24);
 			
 			//System.out.println(chunkBufferLengths[i]+" "+chunkBuffer[i]); //Debug
 			
 			glDrawArrays(GL_QUADS, 0, chunkBufferLengths[i]);
-            //glDrawElements(GL_QUADS, chunkBufferLengths[i]);
-
-			//glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-			
 		}
+        
+        glDisableClientState(GL_TEXTURE_COORD_ARRAY);
         glDisableClientState(GL_COLOR_ARRAY);
 		glDisableClientState(GL_VERTEX_ARRAY);
 			
@@ -107,7 +102,7 @@ public class ChunkRenderer {
         int posz = cz << 4;
         
 		VBOHelper vboHelper = new VBOHelper(); //Create a new VBOHelper
-        vboHelper.shouldTexture(false); //For now, do nothing with texture offsets
+        //vboHelper.shouldTexture(false); //For now, do nothing with texture offsets
 		vboHelper.start(); //Start the VBOHelper
 
 		//Occlusion culler; needs eventual fixing to check if block is solid/opaque

@@ -73,17 +73,16 @@ public class World {
 
         int max = 0;
         
-		for(int ax = 16*x; ax < 16*x+16; ax++){
-			for(int az = 16*z; az < 16*z+16; az++){
-				float ah = noise.noise(ax/150f, az/150f, 0)*chunks[x][z].height/2;
+		for(int ax = 16*x; ax < 16*x + 16; ax++){
+			for(int az = 16*z; az < 16*z + 16; az++){
+				float ah = noise.noise(ax/150f, az/150f, 0)*chunks[x][z].height/2; //Gen 2D Heightmap
 				for(int ay = 0; ay < ah; ay++){
-					if(noise.simplex_noise(2,ax/70f, ay/70f, az/70f)>2){
+					if(noise.simplex_noise(2, ax/70f, ay/70f, az/70f) > 2){ //Gen 3D map
 						chunks[x][z].setBlockID(ax, ay, az, 1);
-                        if(ay>max)
-                            max = ay;
+                        max = ay;
 					}
 				}
-                chunks[x][z].setMaxHeight(ax,az,max);
+                chunks[x][z].setMaxHeight(ax, az, max);
                 max = 0;
 			}
 		}
