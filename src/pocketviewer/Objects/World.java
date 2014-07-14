@@ -43,4 +43,8 @@ public class World {
 	public void setBlockID(int x, int y, int z, int id){
 		chunks.setBlockID(x, y, z, id);
 	}
+    
+    public int getSkylight(int x, int y, int z){
+		return chunks.getSkylight(x, y, z);
+	}
 }

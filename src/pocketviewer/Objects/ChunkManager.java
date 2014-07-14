@@ -56,6 +56,8 @@ public class ChunkManager {
 	}
 	
 	public void genChunk(int x, int z){
+        x%=width;
+        z%=length;
 		if(x<0||x>=chunks.length||z<0||z>=chunks[0].length)
 			return;
 		
@@ -64,6 +66,8 @@ public class ChunkManager {
 	}
 	
 	public Chunk getChunk(int x, int z){
+        x%=width;
+        z%=length;
 		if(x<0||x>=chunks.length||z<0||z>=chunks[0].length)
 			return null;
 		
@@ -71,6 +75,8 @@ public class ChunkManager {
 	}
 	//fix to allow for chunk pos in world and not in cache
 	public void setChunk(int x, int z, Chunk chunk){
+        x%=width;
+        z%=length;
 		if(x<0||x>=chunks.length||z<0||z>=chunks[0].length)
 			return;
 		
@@ -81,7 +87,7 @@ public class ChunkManager {
 		int cx = x >> 4;
 		int cz = z >> 4;
 		
-		if( cx < posx || cx >= posx + width || cz < posz || cz >= posz + length)
+		if(cx < posx || cx >= posx + width || cz < posz || cz >= posz + length)
 			return 0;
         
 		return chunks[cx][cz].getBlockID(x & 15, y, z & 15);
@@ -95,5 +101,15 @@ public class ChunkManager {
 			return;
 		
 		chunks[cx][cz].setBlockID(x, y, z, id);
+	}
+    
+    public int getSkylight(int x, int y, int z){
+		int cx = x >> 4;
+		int cz = z >> 4;
+		
+		if(cx < posx || cx >= posx + width || cz < posz || cz >= posz + length)
+			return 0;
+        
+		return chunks[cx][cz].getSkylight(x & 15, y, z & 15);
 	}
 }

@@ -5,18 +5,16 @@
 package pocketviewer.Renderer;
 
 import java.nio.FloatBuffer;
-import java.nio.IntBuffer;
-import java.util.Arrays;
 
 import static pocketviewer.Objects.BlockFace.*;
 import pocketviewer.Objects.Chunk;
 import pocketviewer.Objects.ChunkManager;
 import pocketviewer.Objects.World;
 
-import org.lwjgl.BufferUtils;
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL15.*;
 import pocketviewer.Blocks.Block;
+import pocketviewer.Renderer.Frustum;
 
 /**
  *
@@ -35,34 +33,42 @@ public class ChunkRenderer {
 	
 	FloatBuffer vertexArray;
     public boolean updated = false; //One chunk update per frame only (for now?)
+    public int chunksRendered = 0;
     
-	public ChunkRenderer(WorldRenderer worldRenderer){
+	public ChunkRenderer(WorldRenderer worldRenderer, ChunkManager chunks){
 		this.worldRenderer = worldRenderer;
 		world = worldRenderer.world;
+        this.chunks = chunks;
 		
 		blockRenderer = new BlockRenderer();
-		chunks = world.chunks;
 		buffers = new int[chunks.length][chunks.width][VBOHelper.DEFAULT_BUFFER_AMOUNT];
 		bufferLengths = new int[chunks.length][chunks.width][VBOHelper.DEFAULT_BUFFER_AMOUNT];
 	}
 	
 	public void renderAllChunks(){
-		for(int x = 0; x < chunks.width; x++){
+        for(int x = 0; x < chunks.width; x++){
 			for(int z = 0; z < chunks.length; z++){
 				renderChunk(x, z);
 			}
 		}
         updated = false;
+        //System.out.println(chunksRendered);
+        chunksRendered = 0;
         //System.out.println(worldRenderer.player.camera.getYaw());
 	}
 
 	public void renderChunk(int x, int z){
 		if(x < 0 || z < 0 || x >= chunks.width || z >= chunks.length)
 			return;
+        
+        Chunk c = chunks.getChunk(x, z);
+        
+        //Check range first for speed, frustum next for added boost
+        if(!worldRenderer.player.isChunkInRange(c) || !worldRenderer.frustum.cubeInFrustum(c.pos.x, c.minHeight-1, c.pos.z, c.pos.x + c.width, c.maxHeight+1, c.pos.z + c.length))
+            return;
 
 		int[] chunkBuffer = getChunkBuffer(x, z);
-		int[] chunkBufferLengths = getChunkBufferLength(x, z);
-		Chunk c = chunks.getChunk(x, z);
+		int[] chunkBufferLengths = getChunkBufferLength(x, z);		
 
 		if(!updated && (c.needsUpdate || chunkBuffer == null))
 			chunks.setChunk(x, z, updateChunkVBO(c, x, z)); //Update and set the chunk as updated
@@ -96,12 +102,14 @@ public class ChunkRenderer {
 		glBindBuffer(GL_ARRAY_BUFFER, 0);
 
 		glPopMatrix();
+        
+        chunksRendered++;
 	}
 
 	//Do NOT update the VBO unless a block is placed/removed/updated!
 	//Updates the VBO for a given chunk and returns the updated chunk
 	public Chunk updateChunkVBO(Chunk chunk, int cx, int cz){
-		long g = System.currentTimeMillis(); //Measure performance
+		//long g = System.currentTimeMillis(); //Measure performance
 		
         int posx = cx << 4;
         int posz = cz << 4;
@@ -111,31 +119,31 @@ public class ChunkRenderer {
 		vboHelper.start(); //Start the VBOHelper
 
 		//Occlusion culler; needs eventual fixing to check if block is solid/opaque
-        Vertex[][] faces;
         int id;
+        int light;
 		for(int x = 0; x < chunk.width; x++){
 			for(int y = 0; y < chunk.height; y++){
 				for(int z = 0; z < chunk.length; z++){
                     id = world.getBlockID(posx + x, y, posz + z);
 					if(id > 0 && Block.blocks[id] != null){
-                        faces = BlockRenderer.get(id, x, y, z);
+                        light = world.getSkylight(posx + x, y, posz + z);
 						if(Block.blocks[world.getBlockID(posx + x-1, y, posz + z)] == null || world.getBlockID(posx + x-1, y, posz + z) == 0){ //Check left
-							vboHelper.addVertices(faces[LEFT]);
+							vboHelper.addVertices(BlockRenderer.getLeft(id, x, y, z, light));
 						}
 						if(Block.blocks[world.getBlockID(posx + x+1, y, posz + z)] == null || world.getBlockID(posx + x+1, y, posz + z) == 0){ //Check right
-							vboHelper.addVertices(faces[RIGHT]);
+							vboHelper.addVertices(BlockRenderer.getRight(id, x, y, z, light));
 						}
 						if(Block.blocks[world.getBlockID(posx + x, y-1, posz + z)] == null || world.getBlockID(posx + x, y-1, posz + z) == 0){ //Check bottom
-							vboHelper.addVertices(faces[BOTTOM]);
+							vboHelper.addVertices(BlockRenderer.getBottom(id, x, y, z, light));
 						}
 						if(Block.blocks[world.getBlockID(posx + x, y+1, posz + z)] == null || world.getBlockID(posx + x, y+1, posz + z) == 0){ //Check top
-							vboHelper.addVertices(faces[TOP]);
+							vboHelper.addVertices(BlockRenderer.getTop(id, x, y, z, light));
 						}
 						if(Block.blocks[world.getBlockID(posx + x, y, posz + z-1)] == null || world.getBlockID(posx + x, y, posz + z-1) == 0){ //Check front
-							vboHelper.addVertices(faces[FRONT]);
+							vboHelper.addVertices(BlockRenderer.getFront(id, x, y, z, light));
 						}
-						if(Block.blocks[world.getBlockID(posx + x, y, posz + z+1)] == null|| world.getBlockID(posx + x, y, posz + z+1) == 0){ //Check back
-							vboHelper.addVertices(faces[BACK]);
+						if(Block.blocks[world.getBlockID(posx + x, y, posz + z+1)] == null || world.getBlockID(posx + x, y, posz + z+1) == 0){ //Check back
+							vboHelper.addVertices(BlockRenderer.getBack(id, x, y, z, light));
 						}
 					}
 				}

@@ -5,6 +5,7 @@
 package pocketviewer.Objects;
 
 import pocketviewer.Utils.*;
+import org.lwjgl.util.vector.Vector3f;
 
 public class Chunk {
 	public World world;
@@ -15,7 +16,8 @@ public class Chunk {
 	
 	public int xPos;
 	public int zPos;
-	
+	public Vector3f pos;
+    
 	public boolean needsUpdate = true;
 	
 	public StorageArray[] DataArrays;
@@ -23,12 +25,16 @@ public class Chunk {
 	public byte[] heightMap;
 	
 	public NibbleArray dirtyColumns; //Not implemented yet
+    
+    public int maxHeight;
+    public int minHeight;
 	
 	public Chunk(World world, int x, int z){
 		this.world = world;
 		height = world.height;
         this.xPos = x;
         this.zPos = z;
+        this.pos = new Vector3f(x << 4, 0, z << 4);
         
 		heightMap = new byte[width*height];
 		dirtyColumns = new NibbleArray(width*length);
@@ -44,6 +50,10 @@ public class Chunk {
             return;
         }else if(DataArrays[sect] != null){
             DataArrays[sect].setBlock(x&15, y & 15, z&15, id);
+            if(y>maxHeight)
+                maxHeight = y;
+            if(y<minHeight)
+                minHeight = y;
 			needsUpdate = true;
         }
     }
@@ -64,6 +74,10 @@ public class Chunk {
             return;
         }else if(DataArrays[sect] != null){
             DataArrays[sect].setBlockAndData(x&15, y & 15, z&15, id, data);
+            if(y>maxHeight)
+                maxHeight = y;
+            if(y<minHeight)
+                minHeight = y;
 			needsUpdate = true;
         }
     }
@@ -136,12 +150,20 @@ public class Chunk {
 		return 0;
 	}
 	
-	public void setMaxHeight(int x, int z, int max){
+	public void setMaxHeightAt(int x, int z, int max){
 		heightMap[(z << 4) | x] = (byte)(max&0xff);
 	}
 	
 	//Fix
-	public int getMaxHeight(int x, int z){
+	public int getMaxHeightAt(int x, int z){
 		return heightMap[(z << 4) | x];
 	}
+    
+    public int getMaxHeight(){
+        return maxHeight;
+    }
+    
+    public int getMinHeight(){
+        return minHeight;
+    }
 }

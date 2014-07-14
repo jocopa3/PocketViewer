@@ -25,6 +25,7 @@ public class WorldSource {
 		noise = new SimplexNoise(world.seed);
 	}
     
+    /*
     public Chunk getChunk(int x, int z){
 		Chunk chunk = new Chunk(world, x, z);
 		int posx = x << 4;
@@ -43,8 +44,8 @@ public class WorldSource {
         }
         return chunk;
     }
-    
-	/*
+    */
+	
 	public Chunk getChunk(int x, int z){
 		Chunk chunk = new Chunk(world, x, z);
 		int posx = x << 4;
@@ -61,7 +62,7 @@ public class WorldSource {
                 int max = 0;
 				height = (int)(noise.noise(X/150f, Z/150f, 0)*chunk.height/2); //Heightmap
 				for(int ay = 0; ay < height; ay++){
-                    //if(noise.octaveNoise(2, X/70f, ay/70f, Z/70f) > 2f){ //Create a "cave" effect via 3D noise
+                    if(noise.octaveNoise(2, X/70f, ay/70f, Z/70f) > 2f){ //Create a "cave" effect via 3D noise
                         if(height-ay == 1)
                             chunk.setBlockID(ax, ay, az, 2); //Grass
                         else if(height-ay < 5)
@@ -70,19 +71,29 @@ public class WorldSource {
                             chunk.setBlockID(ax, ay, az, 1); //Stone
                         if(ay > max)
                             max = ay;
-                    //}
+                    }
 				}
-                chunk.setMaxHeight(ax, az, max);
+                chunk.setMaxHeightAt(ax, az, max);
 			}
 		}
         
-        //chunk = updateSkyLight(chunk);
+        chunk = updateSkyLight(chunk);
         
 		return chunk;
 	}
-    */
-    
+   
     public Chunk updateSkyLight(Chunk chunk){
+		int height;
+
+		for(int ax = 0; ax < 16; ax++){
+			for(int az = 0; az < 16; az++){
+				height = chunk.getMaxHeightAt(ax, az); //Heightmap
+				for(int ay = height; ay >= height-15; ay--){
+                    chunk.setSkylight(ax, ay, az, 15-(height-ay));
+				}
+			}
+		}
+        
         return chunk;
     }
 }

@@ -12,12 +12,14 @@ import pocketviewer.Objects.*;
  * @author Jocopa3
  */
 public class WorldRenderer {
-	public float renderDistance;
+	public float renderDistance = 128;
 	public World world;
     
 	public ChunkRenderer chunkRenderer;
 	public BlockRenderer blockRenderer;
 	public PlayerRenderer player;
+    
+    public Frustum frustum;
     
     public int textureHandler; //ID of texture atlas
 	
@@ -25,7 +27,7 @@ public class WorldRenderer {
 		this.world = world;
 		player = new PlayerRenderer(this);
 		//blockRenderer = new BlockRenderer(this);
-		chunkRenderer = new ChunkRenderer(this);
+		chunkRenderer = new ChunkRenderer(this, world.chunks);
         
         try{
             String file = System.getProperty("user.dir")+"/res/images/terrain-atlas.tga"; //Load texture atlas from res files
@@ -37,6 +39,7 @@ public class WorldRenderer {
     }
 
 	public void render() {
+        frustum = Frustum.getFrustum(); //Update frustum once per frame
 		player.updateCamera();
         
         glEnable(GL_TEXTURE_2D);

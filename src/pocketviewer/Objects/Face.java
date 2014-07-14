@@ -12,9 +12,9 @@ public class Face {
 	public final float maxU;
 	public final float maxV;
     
-    public final float r;
-    public final float g;
-    public final float b;
+    public float r;
+    public float g;
+    public float b;
 	
     /** 
      * Creates a new block face object to store face-specific texture
@@ -95,4 +95,22 @@ public class Face {
 	public float getMaxV(){
 		return maxV;
 	}
+    
+    public float getR(){
+        return r;
+    }
+    
+    public float getG(){
+        return g;
+    }
+    
+    public float getB(){
+        return b;
+    }
+    
+    public void setGray(float gray){
+        r = gray;
+        g = gray;
+        b = gray;
+    }
 }

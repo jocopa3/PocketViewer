@@ -35,57 +35,143 @@ public class BlockRenderer {
         return faces;
     }
     
-	public static Vertex[] getFront(Face face, float x, float y, float z){
+    public static Vertex[] getFront(Face face, float x, float y, float z){
+		return getFront(face, x, y, z, 15);
+	}
+    
+	public static Vertex[] getFront(Face face, float x, float y, float z, float light){
+        face.setGray(1-(0.75f-(0.05f*light)));
+        
 		Vertex v1,v2,v3,v4;
-		v1 = new Vertex(x,y+1,z,1,1,1,face.minU,face.minV); //x,y,z,r,g,b,u,v
-		v2 = new Vertex(x,y,z,1,1,1,face.minU,face.maxV);
-		v3 = new Vertex(x+1,y,z,1,1,1,face.maxU,face.maxV);
-		v4 = new Vertex(x+1,y+1,z,1,1,1,face.maxU,face.minV);
+		v1 = new Vertex(x,y+1,z,face.r,face.g,face.b,face.minU,face.minV); //x,y,z,r,g,b,u,v
+		v2 = new Vertex(x,y,z,face.r,face.g,face.b,face.minU,face.maxV);
+		v3 = new Vertex(x+1,y,z,face.r,face.g,face.b,face.maxU,face.maxV);
+		v4 = new Vertex(x+1,y+1,z,face.r,face.g,face.b,face.maxU,face.minV);
 		return new Vertex[]{v1,v2,v3,v4};
 	}
 	
-	public static Vertex[] getBack(Face face, float x, float y, float z){
+    public static Vertex[] getBack(Face face, float x, float y, float z){
+		return getBack(face, x, y, z, 15);
+	}
+    
+	public static Vertex[] getBack(Face face, float x, float y, float z, float light){
+        face.setGray(1-(0.75f-(0.05f*light)));
+        
 		Vertex v1,v2,v3,v4;
-		v1 = new Vertex(x+1,y+1,z+1,1,1,1,face.minU,face.minV);
-		v2 = new Vertex(x+1,y,z+1,1,1,1,face.minU,face.maxV);
-		v3 = new Vertex(x,y,z+1,1,1,1,face.maxU,face.maxV);
-		v4 = new Vertex(x,y+1,z+1,1,1,1,face.maxU,face.minV);
+		v1 = new Vertex(x+1,y+1,z+1,face.r,face.g,face.b,face.minU,face.minV);
+		v2 = new Vertex(x+1,y,z+1,face.r,face.g,face.b,face.minU,face.maxV);
+		v3 = new Vertex(x,y,z+1,face.r,face.g,face.b,face.maxU,face.maxV);
+		v4 = new Vertex(x,y+1,z+1,face.r,face.g,face.b,face.maxU,face.minV);
 		return new Vertex[]{v1,v2,v3,v4};
 	}
 	
-	public static Vertex[] getLeft(Face face, float x, float y, float z){
+    public static Vertex[] getLeft(Face face, float x, float y, float z){
+		return getLeft(face, x, y, z, 15);
+	}
+    
+	public static Vertex[] getLeft(Face face, float x, float y, float z, float light){
+        face.setGray(1-(0.75f-(0.05f*light)));
+        
 		Vertex v1,v2,v3,v4;
-		v1 = new Vertex(x,y+1,z+1,1,1,1,face.minU,face.minV);
-		v2 = new Vertex(x,y,z+1,1,1,1,face.minU,face.maxV);
-		v3 = new Vertex(x,y,z,1,1,1,face.maxU,face.maxV);
-		v4 = new Vertex(x,y+1,z,1,1,1,face.maxU,face.minV);
+		v1 = new Vertex(x,y+1,z+1,face.r,face.g,face.b,face.minU,face.minV);
+		v2 = new Vertex(x,y,z+1,face.r,face.g,face.b,face.minU,face.maxV);
+		v3 = new Vertex(x,y,z,face.r,face.g,face.b,face.maxU,face.maxV);
+		v4 = new Vertex(x,y+1,z,face.r,face.g,face.b,face.maxU,face.minV);
 		return new Vertex[]{v1,v2,v3,v4};
 	}
 	
-	public static Vertex[] getRight(Face face, float x, float y, float z){
+    public static Vertex[] getRight(Face face, float x, float y, float z){
+		return getRight(face, x, y, z, 15);
+	}
+    
+	public static Vertex[] getRight(Face face, float x, float y, float z, float light){
+        face.setGray(1-(0.75f-(0.05f*light)));
+        
 		Vertex v1,v2,v3,v4;
-		v1 = new Vertex(x+1,y+1,z,1,1,1,face.minU,face.minV);
-		v2 = new Vertex(x+1,y,z,1,1,1,face.minU,face.maxV);
-		v3 = new Vertex(x+1,y,z+1,1,1,1,face.maxU,face.maxV);
-		v4 = new Vertex(x+1,y+1,z+1,1,1,1,face.maxU,face.minV);
+		v1 = new Vertex(x+1,y+1,z,face.r,face.g,face.b,face.minU,face.minV);
+		v2 = new Vertex(x+1,y,z,face.r,face.g,face.b,face.minU,face.maxV);
+		v3 = new Vertex(x+1,y,z+1,face.r,face.g,face.b,face.maxU,face.maxV);
+		v4 = new Vertex(x+1,y+1,z+1,face.r,face.g,face.b,face.maxU,face.minV);
 		return new Vertex[]{v1,v2,v3,v4};
 	}
 	
-	public static Vertex[] getTop(Face face, float x, float y, float z){
+    public static Vertex[] getTop(Face face, float x, float y, float z){
+		return getTop(face, x, y, z, 15);
+	}
+    
+	public static Vertex[] getTop(Face face, float x, float y, float z, float light){
+        face.setGray(1-(0.75f-(0.05f*light)));
+        
 		Vertex v1,v2,v3,v4;
-		v1 = new Vertex(x,y+1,z+1,1,1,1,face.minU,face.minV);
-		v2 = new Vertex(x,y+1,z,1,1,1,face.minU,face.maxV);
-		v3 = new Vertex(x+1,y+1,z,1,1,1,face.maxU,face.maxV);
-		v4 = new Vertex(x+1,y+1,z+1,1,1,1,face.maxU,face.minV);
+		v1 = new Vertex(x,y+1,z+1,face.r,face.g,face.b,face.minU,face.minV);
+		v2 = new Vertex(x,y+1,z,face.r,face.g,face.b,face.minU,face.maxV);
+		v3 = new Vertex(x+1,y+1,z,face.r,face.g,face.b,face.maxU,face.maxV);
+		v4 = new Vertex(x+1,y+1,z+1,face.r,face.g,face.b,face.maxU,face.minV);
 		return new Vertex[]{v1,v2,v3,v4};
 	}
 	
-	public static Vertex[] getBottom(Face face, float x, float y, float z){
+    public static Vertex[] getBottom(Face face, float x, float y, float z){
+		return getBottom(face, x, y, z, 15);
+	}
+    
+	public static Vertex[] getBottom(Face face, float x, float y, float z, float light){
+        face.setGray(1-(0.75f-(0.05f*light)));
+        
 		Vertex v1,v2,v3,v4;
-		v1 = new Vertex(x,y,z,1,1,1,face.minU,face.minV);
-		v2 = new Vertex(x,y,z+1,1,1,1,face.minU,face.maxV);
-		v3 = new Vertex(x+1,y,z+1,1,1,1,face.maxU,face.maxV);
-		v4 = new Vertex(x+1,y,z,1,1,1,face.maxU,face.minV);
+		v1 = new Vertex(x,y,z,face.r,face.g,face.b,face.minU,face.minV);
+		v2 = new Vertex(x,y,z+1,face.r,face.g,face.b,face.minU,face.maxV);
+		v3 = new Vertex(x+1,y,z+1,face.r,face.g,face.b,face.maxU,face.maxV);
+		v4 = new Vertex(x+1,y,z,face.r,face.g,face.b,face.maxU,face.minV);
 		return new Vertex[]{v1,v2,v3,v4};
+	}
+    
+    
+    
+    public static Vertex[] getFront(int id, float x, float y, float z, float light){
+        Block block = Block.blocks[id];
+        if(block == null)
+            return getFront(Block.blocks[0].getFace(FRONT), x, y, z, light);
+		else
+            return getFront(block.getFace(FRONT), x, y, z, light);
+	}
+	
+	public static Vertex[] getBack(int id, float x, float y, float z, float light){
+        Block block = Block.blocks[id];
+        if(block == null)
+            return getBack(Block.blocks[0].getFace(BACK), x, y, z, light);
+		else
+            return getBack(block.getFace(BACK), x, y, z, light);
+	}
+	
+	public static Vertex[] getLeft(int id, float x, float y, float z, float light){
+        Block block = Block.blocks[id];
+        if(block == null)
+            return getLeft(Block.blocks[0].getFace(LEFT), x, y, z, light);
+		else
+            return getLeft(block.getFace(LEFT), x, y, z, light);
+	}
+	
+	public static Vertex[] getRight(int id, float x, float y, float z, float light){
+        Block block = Block.blocks[id];
+        if(block == null)
+            return getRight(Block.blocks[0].getFace(RIGHT), x, y, z, light);
+		else
+            return getRight(block.getFace(RIGHT), x, y, z, light);
+	}
+	
+	public static Vertex[] getTop(int id, float x, float y, float z, float light){
+        Block block = Block.blocks[id];
+        if(block == null)
+            return getTop(Block.blocks[0].getFace(TOP), x, y, z, light);
+		else
+            return getTop(block.getFace(TOP), x, y, z, light);
+	}
+	
+	public static Vertex[] getBottom(int id, float x, float y, float z, float light){
+        Block block = Block.blocks[id];
+        if(block == null)
+            return getBottom(Block.blocks[0].getFace(BOTTOM), x, y, z, light);
+		else
+            return getBottom(block.getFace(BOTTOM), x, y, z, light);
 	}
 }

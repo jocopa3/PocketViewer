@@ -6,6 +6,7 @@ import org.lwjgl.BufferUtils;
 import static org.lwjgl.opengl.GL15.*;
 
 /**
+ * v0.3: Adding ability to add normals
  * v0.2: Added the ability to choose which stuff to render (vertices, colors, textures)
  * @author Jocopa3
  */
