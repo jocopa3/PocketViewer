@@ -12,14 +12,14 @@ public class GrassBlock extends Block{
 		super(id);
         this.isOpaque = true;
         this.isCube = true;
-        initTextures();
+        this.hasShadow = true;
 	}
 	
 	public GrassBlock(int id, int data){
 		super(id, data);
         this.isOpaque = true;
         this.isCube = true;
-        initTextures();
+        this.hasShadow = true;
 	}
     
     //In the future, use grass colors instead of UV coordinates

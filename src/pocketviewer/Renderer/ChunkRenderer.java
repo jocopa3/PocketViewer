@@ -6,48 +6,44 @@ package pocketviewer.Renderer;
 
 import java.nio.FloatBuffer;
 
+import pocketviewer.Blocks.Block;
 import static pocketviewer.Objects.BlockFace.*;
 import pocketviewer.Objects.Chunk;
 import pocketviewer.Objects.ChunkManager;
 import pocketviewer.Objects.World;
+import static pocketviewer.Utils.MathUtils.*;
 
 import static org.lwjgl.opengl.GL11.*;
 import static org.lwjgl.opengl.GL15.*;
-import pocketviewer.Blocks.Block;
-import pocketviewer.Renderer.Frustum;
 
 /**
  *
  * @author Jocopa3
  */
 public class ChunkRenderer {
-	
-	public World world;
-	public ChunkManager chunks;
-	
 	public WorldRenderer worldRenderer;
 	BlockRenderer blockRenderer;
 	
-	public int[][][] buffers;
-	public int[][][] bufferLengths;
+	public Buffer[][] buffers;
 	
 	FloatBuffer vertexArray;
     public boolean updated = false; //One chunk update per frame only (for now?)
     public int chunksRendered = 0;
     
-	public ChunkRenderer(WorldRenderer worldRenderer, ChunkManager chunks){
+    boolean AO = true; //Use Ambient Occlusion or not (smooth shading)
+    
+	public ChunkRenderer(WorldRenderer worldRenderer){
 		this.worldRenderer = worldRenderer;
-		world = worldRenderer.world;
-        this.chunks = chunks;
 		
 		blockRenderer = new BlockRenderer();
-		buffers = new int[chunks.length][chunks.width][VBOHelper.DEFAULT_BUFFER_AMOUNT];
-		bufferLengths = new int[chunks.length][chunks.width][VBOHelper.DEFAULT_BUFFER_AMOUNT];
+		buffers = new Buffer[worldRenderer.world.chunks.length][worldRenderer.world.chunks.width];
 	}
 	
+    //Rename to renderChunks();
 	public void renderAllChunks(){
-        for(int x = 0; x < chunks.width; x++){
-			for(int z = 0; z < chunks.length; z++){
+        for(int x = 0; x < World.world.chunks.width; x++){
+			for(int z = 0; z < World.world.chunks.length; z++){
+                //send chunk instead of x,z
 				renderChunk(x, z);
 			}
 		}
@@ -58,21 +54,29 @@ public class ChunkRenderer {
 	}
 
 	public void renderChunk(int x, int z){
-		if(x < 0 || z < 0 || x >= chunks.width || z >= chunks.length)
+		if(x < 0 || z < 0 || x >= World.world.chunks.width || z >= World.world.chunks.length)
 			return;
         
-        Chunk c = chunks.getChunk(x, z);
+        Chunk c = World.world.chunks.getChunk(x, z);
+        
+        if(c == null)
+            World.world.generateChunk(x, z);
         
         //Check range first for speed, frustum next for added boost
         if(!worldRenderer.player.isChunkInRange(c) || !worldRenderer.frustum.cubeInFrustum(c.pos.x, c.minHeight-1, c.pos.z, c.pos.x + c.width, c.maxHeight+1, c.pos.z + c.length))
             return;
 
-		int[] chunkBuffer = getChunkBuffer(x, z);
-		int[] chunkBufferLengths = getChunkBufferLength(x, z);		
+		Buffer chunkBuffer = getChunkBuffer(x, z);	
 
-		if(!updated && (c.needsUpdate || chunkBuffer == null))
-			chunks.setChunk(x, z, updateChunkVBO(c, x, z)); //Update and set the chunk as updated
+		if(!updated && (c.needsUpdate || chunkBuffer == null)){
+			World.world.chunks.setChunk(x, z, updateChunkVBO(c, x, z)); //Update and set the chunk as updated
+            chunkBuffer = getChunkBuffer(x, z);
+        }
 
+        //If the buffer is still null from not being updated or waiting to be updated, then screw rendering it!
+        if(chunkBuffer == null)
+            return;
+        
 		glPushMatrix();
 		glTranslatef(x << 4, 0, z << 4);
 		
@@ -81,18 +85,18 @@ public class ChunkRenderer {
         glEnableClientState(GL_TEXTURE_COORD_ARRAY);
         
 		for(int i = 0; i < 1; i++){
-			if(chunkBuffer[i] <= 0 || chunkBufferLengths[i] <= 0) //Ignore any empty buffers
+			if(chunkBuffer.getBuffer(i) <= 0 || chunkBuffer.getBufferLength(i) <= 0) //Ignore any empty buffers
 				continue;
 			
-			glBindBuffer(GL_ARRAY_BUFFER, chunkBuffer[i]);
+			glBindBuffer(GL_ARRAY_BUFFER, chunkBuffer.getBuffer(i));
             
             glVertexPointer(3, GL_FLOAT, 32, 0);
-            glColorPointer(3, GL_FLOAT, 32, 12);
+            glColorPointer(3, GL_FLOAT, 32, 12); 
             glTexCoordPointer(2, GL_FLOAT, 32, 24);
 			
 			//System.out.println(chunkBufferLengths[i]+" "+chunkBuffer[i]); //Debug
 			
-			glDrawArrays(GL_QUADS, 0, chunkBufferLengths[i]);
+			glDrawArrays(GL_QUADS, 0, chunkBuffer.getBufferLength(i));
 		}
         
         glDisableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -105,7 +109,7 @@ public class ChunkRenderer {
         
         chunksRendered++;
 	}
-
+    
 	//Do NOT update the VBO unless a block is placed/removed/updated!
 	//Updates the VBO for a given chunk and returns the updated chunk
 	public Chunk updateChunkVBO(Chunk chunk, int cx, int cz){
@@ -121,29 +125,130 @@ public class ChunkRenderer {
 		//Occlusion culler; needs eventual fixing to check if block is solid/opaque
         int id;
         int light;
+        boolean[] blocks;
+        
+        Vertex[] face;
+        Block block;
 		for(int x = 0; x < chunk.width; x++){
 			for(int y = 0; y < chunk.height; y++){
 				for(int z = 0; z < chunk.length; z++){
-                    id = world.getBlockID(posx + x, y, posz + z);
+                    id = World.world.getBlockID(posx + x, y, posz + z);
+                    block = World.world.getBlock(posx + x, y, posz + z);
 					if(id > 0 && Block.blocks[id] != null){
-                        light = world.getSkylight(posx + x, y, posz + z);
-						if(Block.blocks[world.getBlockID(posx + x-1, y, posz + z)] == null || world.getBlockID(posx + x-1, y, posz + z) == 0){ //Check left
-							vboHelper.addVertices(BlockRenderer.getLeft(id, x, y, z, light));
+                        light = World.world.getSkylight(posx + x, y, posz + z);
+                        
+						if(World.world.getBlockID(posx + x-1, y, posz + z) == 0){ //Check left
+                            light = World.world.getSkylight(posx + x-1, y, posz + z);
+                            if(AO){
+                                blocks = new boolean[]{
+                                    World.world.getBlock(posx + x-1, y-1, posz + z-1).hasShadow,
+                                    World.world.getBlock(posx + x-1, y-1, posz + z).hasShadow,
+                                    World.world.getBlock(posx + x-1, y-1, posz + z+1).hasShadow,
+                                    World.world.getBlock(posx + x-1, y, posz + z+1).hasShadow,
+                                    World.world.getBlock(posx + x-1, y+1, posz + z+1).hasShadow,
+                                    World.world.getBlock(posx + x-1, y+1, posz + z).hasShadow,
+                                    World.world.getBlock(posx + x-1, y+1, posz + z-1).hasShadow,
+                                    World.world.getBlock(posx + x-1, y, posz + z-1).hasShadow};
+                                face = BlockRenderer.getLeftWithAO(block.getFace(LEFT), x, y, z, light, blocks);
+                            }else
+                                face = BlockRenderer.getLeft(id, x, y, z, light);
+                                //TINT BASED ON BIOME COLOR
+							vboHelper.addVertices(face);
 						}
-						if(Block.blocks[world.getBlockID(posx + x+1, y, posz + z)] == null || world.getBlockID(posx + x+1, y, posz + z) == 0){ //Check right
-							vboHelper.addVertices(BlockRenderer.getRight(id, x, y, z, light));
+                        
+						if(World.world.getBlockID(posx + x+1, y, posz + z) == 0){ //Check right
+                            light = World.world.getSkylight(posx + x+1, y, posz + z);
+                            if(AO){
+                                blocks = new boolean[]{
+                                    World.world.getBlock(posx + x+1, y-1, posz + z-1).hasShadow,
+                                    World.world.getBlock(posx + x+1, y-1, posz + z).hasShadow,
+                                    World.world.getBlock(posx + x+1, y-1, posz + z+1).hasShadow,
+                                    World.world.getBlock(posx + x+1, y, posz + z+1).hasShadow,
+                                    World.world.getBlock(posx + x+1, y+1, posz + z+1).hasShadow,
+                                    World.world.getBlock(posx + x+1, y+1, posz + z).hasShadow,
+                                    World.world.getBlock(posx + x+1, y+1, posz + z-1).hasShadow,
+                                    World.world.getBlock(posx + x+1, y, posz + z-1).hasShadow};
+                                face = BlockRenderer.getRightWithAO(block.getFace(RIGHT), x, y, z, light, blocks);
+                            }else
+                                face = BlockRenderer.getRight(id, x, y, z, light);
+                                //TINT BASED ON BIOME COLOR
+							vboHelper.addVertices(face);
 						}
-						if(Block.blocks[world.getBlockID(posx + x, y-1, posz + z)] == null || world.getBlockID(posx + x, y-1, posz + z) == 0){ //Check bottom
-							vboHelper.addVertices(BlockRenderer.getBottom(id, x, y, z, light));
+                        
+						if(World.world.getBlockID(posx + x, y-1, posz + z) == 0){ //Check bottom
+							light = World.world.getSkylight(posx + x, y+1, posz + z);
+                            if(AO){
+                                blocks = new boolean[]{
+                                    World.world.getBlock(posx + x-1, y-1, posz + z-1).hasShadow,
+                                    World.world.getBlock(posx + x, y-1, posz + z-1).hasShadow,
+                                    World.world.getBlock(posx + x+1, y-1, posz + z-1).hasShadow,
+                                    World.world.getBlock(posx + x+1, y-1, posz + z).hasShadow,
+                                    World.world.getBlock(posx + x+1, y-1, posz + z+1).hasShadow,
+                                    World.world.getBlock(posx + x, y-1, posz + z+1).hasShadow,
+                                    World.world.getBlock(posx + x-1, y-1, posz + z+1).hasShadow,
+                                    World.world.getBlock(posx + x-1, y-1, posz + z).hasShadow};
+                                face = BlockRenderer.getBottomWithAO(block.getFace(BOTTOM), x, y, z, light, blocks);
+                            }else
+                                face = BlockRenderer.getBottom(id, x, y, z, light);
+                                //TINT BASED ON BIOME COLOR
+							vboHelper.addVertices(face);
 						}
-						if(Block.blocks[world.getBlockID(posx + x, y+1, posz + z)] == null || world.getBlockID(posx + x, y+1, posz + z) == 0){ //Check top
-							vboHelper.addVertices(BlockRenderer.getTop(id, x, y, z, light));
+                        
+						if(World.world.getBlockID(posx + x, y+1, posz + z) == 0){ //Check top
+							light = World.world.getSkylight(posx + x, y+1, posz + z);
+                            if(AO){
+                                blocks = new boolean[]{
+                                    World.world.getBlock(posx + x-1, y+1, posz + z-1).hasShadow,
+                                    World.world.getBlock(posx + x, y+1, posz + z-1).hasShadow,
+                                    World.world.getBlock(posx + x+1, y+1, posz + z-1).hasShadow,
+                                    World.world.getBlock(posx + x+1, y+1, posz + z).hasShadow,
+                                    World.world.getBlock(posx + x+1, y+1, posz + z+1).hasShadow,
+                                    World.world.getBlock(posx + x, y+1, posz + z+1).hasShadow,
+                                    World.world.getBlock(posx + x-1, y+1, posz + z+1).hasShadow,
+                                    World.world.getBlock(posx + x-1, y+1, posz + z).hasShadow};
+                                face = BlockRenderer.getTopWithAO(block.getFace(TOP), x, y, z, light, blocks);
+                            }else
+                                face = BlockRenderer.getTop(id, x, y, z, light);
+                                //TINT BASED ON BIOME COLOR
+							vboHelper.addVertices(face);
 						}
-						if(Block.blocks[world.getBlockID(posx + x, y, posz + z-1)] == null || world.getBlockID(posx + x, y, posz + z-1) == 0){ //Check front
-							vboHelper.addVertices(BlockRenderer.getFront(id, x, y, z, light));
+                        
+						if(World.world.getBlockID(posx + x, y, posz + z-1) == 0){ //Check front
+                            light = World.world.getSkylight(posx + x, y, posz + z-1);
+                            if(AO){
+                                blocks = new boolean[]{
+                                    World.world.getBlock(posx + x-1, y-1, posz + z-1).hasShadow,
+                                    World.world.getBlock(posx + x, y-1, posz + z-1).hasShadow,
+                                    World.world.getBlock(posx + x+1, y-1, posz + z-1).hasShadow,
+                                    World.world.getBlock(posx + x+1, y, posz + z-1).hasShadow,
+                                    World.world.getBlock(posx + x+1, y+1, posz + z-1).hasShadow,
+                                    World.world.getBlock(posx + x, y+1, posz + z-1).hasShadow,
+                                    World.world.getBlock(posx + x-1, y+1, posz + z-1).hasShadow,
+                                    World.world.getBlock(posx + x-1, y, posz + z-1).hasShadow};
+                                face = BlockRenderer.getFrontWithAO(block.getFace(FRONT), x, y, z, light, blocks);
+                            }else
+                                face = BlockRenderer.getFront(id, x, y, z, light);
+                                //TINT BASED ON BIOME COLOR
+							vboHelper.addVertices(face);
 						}
-						if(Block.blocks[world.getBlockID(posx + x, y, posz + z+1)] == null || world.getBlockID(posx + x, y, posz + z+1) == 0){ //Check back
-							vboHelper.addVertices(BlockRenderer.getBack(id, x, y, z, light));
+                        
+						if(World.world.getBlockID(posx + x, y, posz + z+1) == 0){ //Check back
+                            light = World.world.getSkylight(posx + x, y, posz + z+1);
+                            if(AO){
+                                blocks = new boolean[]{
+                                    World.world.getBlock(posx + x-1, y-1, posz + z+1).hasShadow,
+                                    World.world.getBlock(posx + x, y-1, posz + z+1).hasShadow,
+                                    World.world.getBlock(posx + x+1, y-1, posz + z+1).hasShadow,
+                                    World.world.getBlock(posx + x+1, y, posz + z+1).hasShadow,
+                                    World.world.getBlock(posx + x+1, y+1, posz + z+1).hasShadow,
+                                    World.world.getBlock(posx + x, y+1, posz + z+1).hasShadow,
+                                    World.world.getBlock(posx + x-1, y+1, posz + z+1).hasShadow,
+                                    World.world.getBlock(posx + x-1, y, posz + z+1).hasShadow};
+                                face = BlockRenderer.getBackWithAO(block.getFace(BACK), x, y, z, light, blocks);
+                            }else
+                                face = BlockRenderer.getBack(id, x, y, z, light);
+                                //TINT BASED ON BIOME COLOR
+							vboHelper.addVertices(face);
 						}
 					}
 				}
@@ -152,8 +257,7 @@ public class ChunkRenderer {
         
 		vboHelper.stop(); //End the VBOHelper
 		
-		buffers[cx][cz] = vboHelper.getBufferHandlers(); //Get VBO buffer handles
-		bufferLengths[cx][cz] = vboHelper.getBufferLengths(); //Get VBO element lengths
+		buffers[cx][cz] = vboHelper.getBuffer(); //Get VBO buffer handles
         
         vboHelper.cleanUp(true);
 		
@@ -169,8 +273,8 @@ public class ChunkRenderer {
 	
 	//Deletes all buffers for all chunks
 	public void deleteAllChunkBuffers(){
-		for(int x = 0; x < chunks.length; x++){
-			for(int z = 0; z < chunks.width; z++){
+		for(int x = 0; x < World.world.chunks.length; x++){
+			for(int z = 0; z < World.world.chunks.width; z++){
 				deleteChunkBuffer(x, z);
 			}
 		}
@@ -178,21 +282,13 @@ public class ChunkRenderer {
 	
 	//Deletes all chunk buffers and clears stored buffers for a given chunk
 	public void deleteChunkBuffer(int x, int z){
-		int[] chunkBuffers = getChunkBuffer(x, z);
-		for(int i : chunkBuffers){
-			glDeleteBuffers(i);
-		}
-		bufferLengths[x][z] = null;
-		buffers[x][z] = null;
+        if(buffers[x][z] == null)
+            return;
+        
+		buffers[x][z].deleteAllBuffers();
 	}
-	
-	//Returns int array of buffer handlers for a given chunk
-	public int[] getChunkBuffer(int x, int z){
-		return buffers[x][z];
-	}
-	
-	//Returns int array of buffer lenghts for a given chunk
-	public int[] getChunkBufferLength(int x, int z){
-		return bufferLengths[x][z];
-	}
+    
+    public Buffer getChunkBuffer(int x, int z){
+        return buffers[x][z];
+    }
 }

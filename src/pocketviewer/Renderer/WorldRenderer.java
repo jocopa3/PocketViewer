@@ -12,7 +12,7 @@ import pocketviewer.Objects.*;
  * @author Jocopa3
  */
 public class WorldRenderer {
-	public float renderDistance = 128;
+	public float renderDistance = 256; //Distance in blocks, incase anyone needs to be that specific
 	public World world;
     
 	public ChunkRenderer chunkRenderer;
@@ -27,12 +27,12 @@ public class WorldRenderer {
 		this.world = world;
 		player = new PlayerRenderer(this);
 		//blockRenderer = new BlockRenderer(this);
-		chunkRenderer = new ChunkRenderer(this, world.chunks);
+		chunkRenderer = new ChunkRenderer(this);
         
         try{
             String file = System.getProperty("user.dir")+"/res/images/terrain-atlas.tga"; //Load texture atlas from res files
             textureHandler = new Texture(file).getHandler();
-            System.out.println("Texture ID: "+textureHandler);
+
         }catch(IOException ohShit){ //Not the best variable name in the world
             System.out.println(ohShit.toString());
         }
@@ -44,6 +44,7 @@ public class WorldRenderer {
         
         glEnable(GL_TEXTURE_2D);
         glEnable(GL_BLEND);
+        
         glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         glBindTexture(GL_TEXTURE_2D, textureHandler);
         

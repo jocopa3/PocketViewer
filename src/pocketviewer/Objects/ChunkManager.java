@@ -5,6 +5,7 @@
 package pocketviewer.Objects;
 
 import pocketviewer.Generator.WorldSource;
+import static pocketviewer.Utils.MathUtils.max;
 /**
  *
  * @author Jocopa3
@@ -87,7 +88,7 @@ public class ChunkManager {
 		int cx = x >> 4;
 		int cz = z >> 4;
 		
-		if(cx < posx || cx >= posx + width || cz < posz || cz >= posz + length)
+		if(cx < posx || cx >= posx + width || cz < posz || cz >= posz + length || chunks[cx][cz] == null)
 			return 0;
         
 		return chunks[cx][cz].getBlockID(x & 15, y, z & 15);
@@ -97,7 +98,7 @@ public class ChunkManager {
 		int cx = x >> 4;
 		int cz = z >> 4;
 		
-		if(cx < posx || cx >= posx + width || cz < posz || cz >= posz + width)
+		if(cx < posx || cx >= posx + width || cz < posz || cz >= posz + length || chunks[cx][cz] == null)
 			return;
 		
 		chunks[cx][cz].setBlockID(x, y, z, id);
@@ -107,7 +108,7 @@ public class ChunkManager {
 		int cx = x >> 4;
 		int cz = z >> 4;
 		
-		if(cx < posx || cx >= posx + width || cz < posz || cz >= posz + length)
+		if(cx < posx || cx >= posx + width || cz < posz || cz >= posz + length || chunks[cx][cz] == null)
 			return 0;
         
 		return chunks[cx][cz].getSkylight(x & 15, y, z & 15);

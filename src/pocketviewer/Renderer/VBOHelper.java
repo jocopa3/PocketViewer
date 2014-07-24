@@ -12,8 +12,7 @@ import static org.lwjgl.opengl.GL15.*;
  */
 public class VBOHelper {
 	public int vertexCount = 0; //Total amount of verticies in the buffer
-	public int[] bufferHandler; //Array of ID's for the buffer; two or more are used if overflow happens
-	public int[] bufferLength; //Array of buffer lengths
+	public Buffer buffers; //Array of ID's for the buffer; two or more are used if overflow happens
 	
 	public int current = 0; //Current buffer index
 	public int previous = 0; //Previous buffer index
@@ -22,38 +21,36 @@ public class VBOHelper {
 	public boolean drawing = true; //Whether or not the VBO will add vertices
 	public boolean coloring = true; //Whether or not the VBO will add color values
 	public boolean texturing = true; //Whether or not the VBO will add texture coords
+    //public boolean normalizing = false; //Not implemented yet;
     
 	public int vertexPos = 0; //Start pos for verticies
 	public int colorPos = 3; //Start pos for colors
 	public int texturePos = 6; //Start pos for textures
+    //public int normalPos = x; //Start pos for normals (not implemented yet)
 	
 	public int bufferSize; //Custom or default size of the buffer
-	public FloatBuffer buffer; //Buffer being used for rendering
+	public FloatBuffer buffer; //Buffer being used for storing rendering info
 	
 	public static final int DEFAULT_BUFFER_SIZE = 1572864; //16*16*128*6*8
-	public static final int DEFAULT_BUFFER_AMOUNT = 16; //16
 	public int VERTEX_SIZE = 8; //Amount of components per vertex (X,Y,Z,R,G,B,U,V)
 	
 	//public boolean shouldDraw = false;
 	
 	//Create a new buffer using the default size
 	public VBOHelper(){
-		bufferHandler = new int[DEFAULT_BUFFER_AMOUNT];
-		bufferLength = new int[DEFAULT_BUFFER_AMOUNT];
+		buffers = new Buffer();
 		bufferSize = DEFAULT_BUFFER_SIZE;
 	}
 	
 	//Create a new buffer using a given size
 	public VBOHelper(int size){
-		bufferHandler = new int[DEFAULT_BUFFER_AMOUNT];
-		bufferLength = new int[DEFAULT_BUFFER_AMOUNT];
+		buffers = new Buffer();
 		bufferSize = size;
 	}
 	
 	//Create a new buffer using a given size and given amount of buffers; size can be -1 to use the default size
-	public VBOHelper(int size, int buffers){	
-		bufferHandler = new int[buffers];
-		bufferLength = new int[buffers];
+	public VBOHelper(int size, int amount){	
+		buffers = new Buffer(amount);
 		
 		if(size < 0)
 			bufferSize = DEFAULT_BUFFER_SIZE;
@@ -121,10 +118,9 @@ public class VBOHelper {
 
         buffer.flip();
 		
-		bufferHandler[current] = glGenBuffers();
-		bufferLength[current] = vertexCount;
+		buffers.setBufferAndLength(current, glGenBuffers(), vertexCount);
 
-        glBindBuffer(GL_ARRAY_BUFFER, bufferHandler[current]);
+        glBindBuffer(GL_ARRAY_BUFFER, buffers.getBuffer(current));
         glBufferData(GL_ARRAY_BUFFER, buffer, GL_STATIC_DRAW);
         glBindBuffer(GL_ARRAY_BUFFER, 0);
 		
@@ -133,13 +129,8 @@ public class VBOHelper {
 	}
 	
 	//Returns all buffer handlers
-	public int[] getBufferHandlers(){
-		return bufferHandler;
-	}
-	
-	//Returns all buffer lengths
-	public int[] getBufferLengths(){
-		return bufferLength;
+	public Buffer getBuffer(){
+		return buffers;
 	}
 	
 	//Reuse the same buffer to save memory
@@ -155,7 +146,7 @@ public class VBOHelper {
 	//Check if there are still a valid amount of buffers left, then use
 	public void nextBuffer(){
 		previous = current;
-		if(current < bufferHandler.length - 1)
+		if(current < buffers.length - 1)
 			current++;
 	}
 	
@@ -165,8 +156,7 @@ public class VBOHelper {
 		if(fullClean){
 			//Arrays.fill(bufferHandler, 0);
 			//Arrays.fill(bufferLength, 0);
-			bufferHandler = null;
-			bufferLength = null;
+            buffers = null;
 		}
 		
 		//glCheckError stuff here

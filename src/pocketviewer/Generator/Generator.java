@@ -10,6 +10,6 @@ package pocketviewer.Generator;
  *
  * @author Jocopa3
  */
-public class Generator {
-	
+public abstract class Generator {
+	//public abstract void 
 }

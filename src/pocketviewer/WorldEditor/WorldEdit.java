@@ -49,9 +49,10 @@ public class WorldEdit {
         
 		initDisplay();
 		initMatrix();
+        initGL();
 		
         if(world == null)
-            world = new World(16, 456);
+            world = new World(32, 456); //Big World
 		worldRenderer = new WorldRenderer(world);
 		
 		//System.out.println("Starting render loop!");
@@ -126,4 +127,11 @@ public class WorldEdit {
             System.exit(0);
         }
 	}
+
+    private void initGL() {
+        glFrontFace(GL_CW);
+        glEnable(GL_CULL_FACE);
+        //I think it's a pretty good sign I screwed up if I have to cull the front face
+        glCullFace(GL_BACK); 
+    }
 }

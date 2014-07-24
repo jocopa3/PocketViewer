@@ -1,11 +1,10 @@
 package pocketviewer.Renderer;
 
 import pocketviewer.Objects.Chunk;
+import static pocketviewer.Utils.MathUtils.*;
 
 import org.lwjgl.input.Keyboard;
 import org.lwjgl.input.Mouse;
-import org.lwjgl.util.vector.Vector2f;
-import pocketviewer.Utils.Table;
 
 import static org.lwjgl.opengl.GL11.glLoadIdentity;
 /**
@@ -63,16 +62,13 @@ public class PlayerRenderer {
         camera.lookThrough();
 	}
 	
-	//fix;
 	public boolean isChunkInRange(Chunk chunk){
-        float cx = chunk.xPos << 4, cz = chunk.zPos << 4;
+        if(chunk == null)
+            return false;
+        
+        float cx = (chunk.xPos << 4) + (chunk.width >> 1), cz = (chunk.zPos << 4) + (chunk.length >> 1); //Chunk center
 		float px = -camera.getX(), pz = -camera.getZ();
         
-        return pow(cx-px) + pow(cz-pz) < pow(renderer.renderDistance); //uses un-normalized distance formula for speed
+        return distSqrd(cx, cz, px, pz) < sqr(renderer.renderDistance); //uses un-normalized distance formula for speed
 	}
-    
-    //Quick power function
-    public float pow(float x){
-        return x*x;
-    }
 }

@@ -26,6 +26,8 @@ public class Chunk {
 	
 	public NibbleArray dirtyColumns; //Not implemented yet
     
+    public int[] biomeColors;
+    
     public int maxHeight;
     public int minHeight;
 	
@@ -37,6 +39,7 @@ public class Chunk {
         this.pos = new Vector3f(x << 4, 0, z << 4);
         
 		heightMap = new byte[width*height];
+        biomeColors = new int[width*height];
 		dirtyColumns = new NibbleArray(width*length);
 		DataArrays = new StorageArray[height >> 4];
         for(int i = 0; i < DataArrays.length; i++){
@@ -166,4 +169,13 @@ public class Chunk {
     public int getMinHeight(){
         return minHeight;
     }
+    
+    public void setBiomeColorAt(int x, int z, int color){
+		biomeColors[(z << 4) | x] = color;
+	}
+	
+	//Fix
+	public int getBiomeColorAt(int x, int z){
+		return biomeColors[(z << 4) | x];
+	}
 }

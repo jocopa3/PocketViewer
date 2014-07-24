@@ -12,20 +12,19 @@ public class StoneBlock extends Block{
 		super(id);
         this.isOpaque = true;
         this.isCube = true;
-        initTextures();
+        this.hasShadow = true;
 	}
 	
 	public StoneBlock(int id, int data){
 		super(id, data);
         this.isOpaque = true;
         this.isCube = true;
-        initTextures();
+        this.hasShadow = true;
 	}
     
     @Override
     public void initTextures(){
         this.faces = new Face[TOTAL_FACES];
-        
         this.faces[TOP] = new Face(0.5938f, 0.0f, 0.625f, 0.0625f);
         this.faces[BOTTOM] = new Face(0.5938f, 0.0f, 0.625f, 0.0625f);
         this.faces[LEFT] = new Face(0.5938f, 0.0f, 0.625f, 0.0625f);

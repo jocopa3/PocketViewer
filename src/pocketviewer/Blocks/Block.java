@@ -17,6 +17,7 @@ public class Block {
 	public int data;
     
     public boolean isOpaque;
+    public boolean hasShadow;
     
     public boolean isCube;
 	
@@ -51,15 +52,15 @@ public class Block {
 	public Block(int id){
 		this.id = id;
 		this.data = 0;
-		faces = new Face[6];
         blocks[id] = this;
+        initTextures();
 	}
 	
 	public Block(int id, int data){
 		this.id = id;
 		this.data = data;
-		faces = new Face[6];
         blocks[id] = this;
+        initTextures();
 	}
 	
 	public int getID(){

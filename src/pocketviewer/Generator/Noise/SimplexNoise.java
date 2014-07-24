@@ -17,8 +17,13 @@ public class SimplexNoise extends Noise{
 		perm = genPermArray(seed);
 	}
 
+    @Override //Implement 2D simplex algorithm
+    public float noise2D(float xin, float zin){
+        return noise3D(xin, zin, 0);
+    }
+    
 	@Override
-    public float noise(float xin, float yin, float zin){
+    public float noise3D(float xin, float yin, float zin){
         float F3, G3, t, X0, Y0, Z0, x0, y0, z0, s, x1, y1, z1, x2, y2, z2, x3, y3, z3, t0, t1, t2, t3, n0, n1, n2, n3;
         int i, j, k, ii, jj, kk, i1, j1, k1, i2, j2, k2, gi0, gi1, gi2, gi3;
 
@@ -108,19 +113,49 @@ public class SimplexNoise extends Noise{
         //System.out.println("Values 3: xin: "+xin+" yin: "+yin+" zin: "+zin+" | "+x1+" | "+x2+" | "+x3+" | "+y1+" | "+y2+" | "+y3+" | "+z1+" | "+z2+" | "+z3+" | "+ii+" | "+
         //	jj+" | "+kk+" | "+gi0+" | "+gi1+" | "+gi2+" | "+gi3+" | "+t0+" | "+t1+" | "+t2+" | "+t3+" | "+n0+" | "+n1+" | "+n2+" | "+n3+" ");
 
-        return 16.0f*(n0 + n1 + n2 + n3)+1.0f;
+        return 32.0f*(n0 + n1 + n2 + n3);
     }
 
-	@Override
-	public float octaveNoise(int octaves, float x, float y, float z){
+    @Override
+    public float octaveNoise2D(int octaves, float x, float z){
+        return octaveNoise3D(octaves, x, z, 0);
+    }
+    
+    @Override
+    public float octaveNoise3D(int octaves, float x, float y, float z){
 		float value = 0.0f;
+        int max = 0;
 		for(int i=0; i<octaves; i++){
-            value += noise(
+            value += noise3D(
 				(x * (2 << (i - 1))),
 				(y * (2 << (i - 1))),
-				(z * (2 << (i - 1)))
-			);
+				(z * (2 << (i - 1))));
+            max++;
 		}
+        value /= max;
+		return value;
+	}
+    
+    @Override
+    public float octaveNoise2D(int octaves, float fre, float amp, float x, float z){
+        return octaveNoise3D(octaves, fre, amp, x, z, 0);
+    }
+    
+	@Override
+	public float octaveNoise3D(int octaves, float fre, float amp, float x, float y, float z){
+		float value = 0.0f;
+        float ampl = 1f, freq = 1f, max = 0;
+		for(int i=0; i<octaves; i++){
+            //value += noise(
+			//	(x * (2 << (i - 1))),
+			//	(y * (2 << (i - 1))),
+			//	(z * (2 << (i - 1))));
+            value += noise3D(x*freq, y*freq, z*freq)*ampl;
+            max+=ampl;
+            freq*=fre;
+            ampl*=amp;
+		}
+        value /= max;
 		return value;
 	}
 }

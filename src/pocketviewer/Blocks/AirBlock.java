@@ -12,13 +12,14 @@ public class AirBlock extends Block{
 		super(id);
         this.isOpaque = false;
         this.isCube = true;
+        this.hasShadow = false;
 	}
 	
 	public AirBlock(int id, int data){
 		super(id, data);
         this.isOpaque = false;
         this.isCube = true;
-        initTextures();
+        this.hasShadow = false;
 	}
     
     @Override
